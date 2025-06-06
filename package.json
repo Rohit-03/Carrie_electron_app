@@ -1,0 +1,15 @@
+{
+  "name": "simple-electron-app",
+  "version": "1.0.0",
+  "description": "A simple Electron application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.1.0"
+  }
+} 

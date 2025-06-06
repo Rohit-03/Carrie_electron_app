@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notion-like App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            background: #fcfbf7;
+            color: #222;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background-color: #f7f6f3;
+            border-right: 1px solid #ececec;
+            display: flex;
+            flex-direction: column;
+            padding: 0 0 20px 0;
+        }
+
+        .sidebar-section {
+            padding: 0 20px;
+            margin-bottom: 18px;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: #ececec;
+            margin: 12px 0;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 40px 20px 16px 20px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #e0dfdb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: #8b8a86;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #37352f;
+        }
+
+        .profile-status {
+            font-size: 12px;
+            color: #b3b3b1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #37352f;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background 0.1s;
+            margin-bottom: 2px;
+        }
+
+        .nav-item.active, .nav-item:hover {
+            background: #ececec;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            color: #b3b3b1;
+        }
+
+        .section-label {
+            font-size: 12px;
+            color: #b3b3b1;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin: 10px 0 6px 2px;
+        }
+
+        .project-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .project-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #37352f;
+            font-size: 15px;
+            font-weight: 400;
+            transition: background 0.1s;
+        }
+
+        .project-item.active, .project-item:hover {
+            background: #ececec;
+        }
+
+        .project-icon {
+            font-size: 17px;
+            color: #b3b3b1;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 0;
+            background: #fcfbf7;
+            min-height: 100vh;
+        }
+
+        .page-title {
+            font-size: 38px;
+            font-weight: 700;
+            color: #37352f;
+            margin-bottom: 20px;
+        }
+
+        .page-content {
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            background: #fcfbf7;
+        }
+
+        .tool-card {
+            background: #fff;
+            border: 1px solid #ececec;
+            border-radius: 16px;
+            padding: 24px 18px 18px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 18px;
+            box-shadow: none;
+            transition: border 0.12s;
+            cursor: pointer;
+            position: relative;
+        }
+        .tool-card:hover {
+            border: 1px solid #bdbdbd;
+        }
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+        .tool-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 8px;
+        }
+        .connect-btn {
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 7px 22px;
+            border-radius: 8px;
+            border: 1px solid #ececec;
+            background: #f7f6f3;
+            color: #222;
+            cursor: pointer;
+            transition: background 0.15s, border 0.15s, color 0.15s;
+            margin-top: 2px;
+            box-shadow: none;
+        }
+        .connect-btn:hover:enabled {
+            background: #ececec;
+            border: 1px solid #bdbdbd;
+        }
+        .connect-btn.connected {
+            background: #e6f4ea;
+            color: #1a7f37;
+            border: 1px solid #b7e4c7;
+            position: relative;
+        }
+        .connect-btn.connected:before {
+            content: '\2714';
+            font-size: 1.1em;
+            color: #1a7f37;
+            margin-right: 7px;
+            display: inline-block;
+        }
+        .todo-card {
+            background: #fff;
+            border: 1.5px solid #ececec;
+            border-radius: 16px;
+            box-shadow: 0 1px 6px rgba(60,60,60,0.04);
+            padding: 22px 28px 18px 28px;
+            min-width: 210px;
+            max-width: 260px;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: box-shadow 0.12s, border 0.12s;
+        }
+        .todo-card:hover {
+            border: 1.5px solid #bdbdbd;
+            box-shadow: 0 2px 12px rgba(60,60,60,0.08);
+        }
+        .todo-title {
+            font-size: 1.08rem;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 2px;
+        }
+        .todo-desc {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .notion-home {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 110px;
+        }
+
+        .notion-greeting {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+
+        .notion-greeting-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #f3f2ef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            border: 1px solid #ececec;
+        }
+
+        .notion-greeting-text {
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: #222;
+            letter-spacing: -0.5px;
+        }
+
+        .notion-searchbar-wrap {
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 44px;
+        }
+
+        .notion-searchbar-box {
+            background: #fff;
+            border-radius: 18px;
+            border: 1.5px solid #ececec;
+            box-shadow: 0 4px 32px 0 rgba(60,60,60,0.06);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            width: 100%;
+        }
+        .notion-searchbar-input {
+            width: 100%;
+            font-size: 1.08rem;
+            padding: 36px 36px 24px 36px;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #222;
+            border-radius: 18px 18px 0 0;
+            font-weight: 500;
+        }
+        .notion-searchbar-input::placeholder {
+            color: #b3b3b1;
+            font-weight: 400;
+        }
+        .notion-searchbar-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 28px 18px 28px;
+            border-top: 1px solid #f3f3f3;
+            gap: 0;
+        }
+        .notion-searchbar-icons {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .notion-searchbar-icon,
+        .notion-searchbar-arrow {
+            color: #b3b3b1;
+            font-size: 1.25rem;
+            opacity: 0.85;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            width: 32px;
+            border-radius: 50%;
+            transition: background 0.12s;
+        }
+        .notion-searchbar-icon:hover,
+        .notion-searchbar-arrow:hover {
+            background: #ececec;
+        }
+        .notion-searchbar-sources {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1rem;
+            color: #888;
+            background: #fff;
+            border-radius: 8px;
+            padding: 2px 10px 2px 2px;
+            border: 1px solid #ececec;
+        }
+        .notion-searchbar-sources img {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid #ececec;
+        }
+        .notion-todo-section {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 36px;
+        }
+        .notion-todo-title {
+            font-size: 1.08rem;
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 18px;
+            letter-spacing: 0.5px;
+        }
+        .notion-todo-list {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .notion-todo-card {
+            background: #fff;
+            border: 1px solid #ececec;
+            border-radius: 12px;
+            padding: 22px 28px 18px 28px;
+            min-width: 210px;
+            max-width: 260px;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: border 0.12s;
+            position: relative;
+        }
+        .notion-todo-card-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 2px;
+        }
+        .notion-todo-card-desc {
+            font-size: 1rem;
+            color: #666;
+        }
+        .todo-start-btn {
+            margin-top: 10px;
+            align-self: flex-start;
+            background: #f7f6f3;
+            color: #222;
+            border: 1px solid #ececec;
+            border-radius: 7px;
+            font-size: 0.98rem;
+            font-weight: 500;
+            padding: 6px 18px;
+            cursor: pointer;
+            transition: background 0.13s, border 0.13s;
+        }
+        .todo-start-btn:hover {
+            background: #ececec;
+        }
+        /* Tools & Project Page Styles (match Notion) */
+        .notion-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 56px auto 0 auto;
+            max-width: 900px;
+            width: 100%;
+        }
+        .notion-section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 18px;
+        }
+        .notion-section-desc {
+            color: #666;
+            font-size: 1.08rem;
+            margin-bottom: 24px;
+        }
+        .notion-tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+        .notion-project-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 18px;
+        }
+        .notion-project-desc {
+            color: #666;
+            font-size: 1.08rem;
+        }
+        .sidebar-icon {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            vertical-align: middle;
+            color: #b3b3b1;
+        }
+        .tool-card.add-tool {
+            justify-content: center;
+            align-items: center;
+            background: #faf9f6;
+            border: 1.5px dashed #ececec;
+            color: #b3b3b1;
+            cursor: pointer;
+            min-height: 120px;
+        }
+        .tool-card.add-tool:hover {
+            border: 1.5px dashed #bdbdbd;
+            background: #f3f2ef;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <!-- User Profile -->
+        <div class="profile">
+            <div class="avatar">RS</div>
+            <div class="profile-info">
+                <div class="profile-name">Rohit Shetty</div>
+                <div class="profile-status">Online</div>
+            </div>
+        </div>
+        <div class="sidebar-divider"></div>
+        <!-- Central Hub -->
+        <div class="sidebar-section">
+            <div class="nav-item active" id="home-tab">
+                <span class="sidebar-icon" aria-label="Home">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
+                </span>
+                Home
+            </div>
+            <div class="nav-item" id="tools-tab">
+                <span class="sidebar-icon" aria-label="Tools">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.82-.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 15.4 9a1.65 1.65 0 0 0 1.82.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 15z"/></svg>
+                </span>
+                Tools
+            </div>
+        </div>
+        <div class="sidebar-divider"></div>
+        <!-- Projects -->
+        <div class="sidebar-section">
+            <div class="section-label">PROJECTS</div>
+            <div class="project-list">
+                <div class="project-item">
+                    <span class="project-icon">📁</span>
+                    Tesla Earnings Presentation
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="page-content" id="main-content-home">
+            <div class="notion-home">
+                <div class="notion-greeting">
+                    <div class="notion-greeting-text">Welcome to your workspace</div>
+                </div>
+                <div class="notion-searchbar-wrap">
+                    <div class="notion-searchbar-box">
+                        <input class="notion-searchbar-input" type="text" placeholder="Ask or find anything from your workspace..." />
+                        <div class="notion-searchbar-bottom">
+                            <div style="flex:1"></div>
+                            <div class="notion-searchbar-icons">
+                                <span class="notion-searchbar-icon">📎</span>
+                                <span class="notion-searchbar-icon">@</span>
+                                <span class="notion-searchbar-arrow">↑</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="notion-todo-section">
+                    <div class="notion-todo-title">To do</div>
+                    <div class="notion-todo-list">
+                        <div class="notion-todo-card">
+                            <div class="notion-todo-card-title">Slide Updates - Manager Jeff</div>
+                            <div class="notion-todo-card-desc">Refactor slides on Tesla project</div>
+                            <button class="todo-start-btn">Start</button>
+                        </div>
+                        <div class="notion-todo-card">
+                            <div class="notion-todo-card-title">Meeting</div>
+                            <div class="notion-todo-card-desc">Meet with manager at 2pm</div>
+                            <button class="todo-start-btn">Start</button>
+                        </div>
+                       
+                        <div class="notion-todo-card">
+                            <div class="notion-todo-card-title">Email</div>
+                            <div class="notion-todo-card-desc">Respond to X, Y, Z emails</div>
+                            <button class="todo-start-btn">Start</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-content" id="main-content-tools" style="display:none;">
+            <div class="notion-section">
+                <div class="notion-section-title">Tools <span style="background: #f3f3f3; color: #888; font-size: 13px; font-weight: 600; border-radius: 8px; padding: 2px 8px; margin-left: 4px;">BETA</span></div>
+                <div class="notion-section-desc">Connect your favorite tools so this app can access their information, based on what you're authorized to view.</div>
+                <div class="notion-tool-grid">
+                    <div class="tool-card" data-tool="PowerPoint">
+                        <div class="tool-icon" style="background:#f3f3f3;"><img src="https://img.icons8.com/color/48/000000/microsoft-powerpoint-2019--v1.png" width="36" height="36"/></div>
+                        <div class="tool-name">PowerPoint</div>
+                        <button class="connect-btn">Connect</button>
+                    </div>
+                    <div class="tool-card" data-tool="Slack">
+                        <div class="tool-icon" style="background:#f3f3f3;"><img src="https://img.icons8.com/color/48/000000/slack-new.png" width="36" height="36"/></div>
+                        <div class="tool-name">Slack</div>
+                        <button class="connect-btn">Connect</button>
+                    </div>
+                    <div class="tool-card" data-tool="Gmail">
+                        <div class="tool-icon" style="background:#f3f3f3;"><img src="https://img.icons8.com/color/48/000000/gmail-new.png" width="36" height="36"/></div>
+                        <div class="tool-name">Gmail</div>
+                        <button class="connect-btn">Connect</button>
+                    </div>
+                    <div class="tool-card" data-tool="Zoom">
+                        <div class="tool-icon" style="background:#f3f3f3;"><img src="https://img.icons8.com/color/48/000000/zoom.png" width="36" height="36"/></div>
+                        <div class="tool-name">Zoom</div>
+                        <button class="connect-btn">Connect</button>
+                    </div>
+                    <div class="tool-card add-tool">
+                        <span style="font-size: 2.2rem; color: #b3b3b1; margin: 0 auto;">+</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-content" id="main-content-tesla" style="display:none;">
+            <div class="notion-section">
+                <div class="notion-project-title">Tesla Earnings Presentation</div>
+                <div class="notion-project-desc">This is your Tesla Earnings Presentation project page.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Home tab click
+        document.getElementById('home-tab').addEventListener('click', function() {
+            document.querySelectorAll('.nav-item, .project-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('main-content-home').style.display = '';
+            document.getElementById('main-content-tools').style.display = 'none';
+            document.getElementById('main-content-tesla').style.display = 'none';
+        });
+        // Tools tab click
+        document.getElementById('tools-tab').addEventListener('click', function() {
+            document.querySelectorAll('.nav-item, .project-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('main-content-home').style.display = 'none';
+            document.getElementById('main-content-tools').style.display = '';
+            document.getElementById('main-content-tesla').style.display = 'none';
+        });
+        // Project click
+        document.querySelectorAll('.project-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item, .project-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('main-content-home').style.display = 'none';
+                document.getElementById('main-content-tools').style.display = 'none';
+                document.getElementById('main-content-tesla').style.display = '';
+            });
+        });
+        // Connect button logic
+        document.querySelectorAll('.connect-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!btn.classList.contains('connected')) {
+                    btn.classList.add('connected');
+                    btn.textContent = 'Connected';
+                } else {
+                    btn.classList.remove('connected');
+                    btn.textContent = 'Connect';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
