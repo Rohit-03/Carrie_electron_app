@@ -473,6 +473,172 @@
             border: 1.5px dashed #bdbdbd;
             background: #f3f2ef;
         }
+        .action-needed-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px 0 rgba(60,60,60,0.10);
+            border: 1px solid #ececec;
+            padding: 32px 32px 24px 32px;
+            margin-bottom: 32px;
+            margin-top: 10px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            animation: fadeIn 0.7s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-16px);}
+            to { opacity: 1; transform: none;}
+        }
+        .action-needed-title {
+            font-size: 1.18rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 14px;
+            letter-spacing: 0.2px;
+        }
+        .action-needed-message {
+            font-size: 1.08rem;
+            color: #222;
+            min-height: 48px;
+            margin-bottom: 18px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+        .action-needed-chat {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .action-chat-input {
+            flex: 1;
+            border: 1px solid #ececec;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 1rem;
+            background: #faf9f6;
+            color: #222;
+            outline: none;
+            transition: border 0.13s;
+        }
+        .action-chat-input:focus {
+            border: 1px solid #b3b3b1;
+            background: #fff;
+        }
+        .action-chat-send {
+            background: #f7f6f3;
+            color: #222;
+            border: 1px solid #ececec;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 8px 18px;
+            cursor: pointer;
+            transition: background 0.13s, border 0.13s;
+        }
+        .action-chat-send:hover {
+            background: #ececec;
+        }
+        .typewriter-cursor {
+            display: inline-block;
+            width: 1ch;
+            animation: blink 1s steps(1) infinite;
+            color: #888;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        .tesla-content-row {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-top: 0;
+            min-height: 400px;
+        }
+        .tesla-main-col {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .tesla-tasks-card {
+            background: #f7f6f3;
+            border: 1px solid #ececec;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px 0 rgba(60,60,60,0.04);
+            padding: 28px 28px 22px 28px;
+            min-width: 260px;
+            max-width: 320px;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .tesla-tasks-title {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #37352f;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+        .tesla-tasks-list {
+            list-style: disc inside;
+            color: #444;
+            font-size: 1rem;
+            padding-left: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .tesla-tasks-list li {
+            margin-left: 16px;
+            line-height: 1.6;
+        }
+        @media (max-width: 900px) {
+            .tesla-content-row {
+                flex-direction: column;
+                gap: 24px;
+            }
+            .tesla-tasks-card {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+        .tesla-page-title {
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: #222;
+            margin: 48px auto 32px auto;
+            max-width: 1200px;
+            width: 100%;
+            letter-spacing: -0.5px;
+            padding-left: 2px;
+        }
+        @media (max-width: 900px) {
+            .tesla-page-title {
+                margin: 32px 0 24px 0;
+                padding-left: 0;
+                text-align: center;
+            }
+            .tesla-content-row {
+                margin-top: 0;
+            }
+        }
+        .tesla-content-row {
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
@@ -508,7 +674,7 @@
             <div class="project-list">
                 <div class="project-item">
                     <span class="project-icon">📁</span>
-                    Tesla Earnings Presentation
+                    Tesla Earnings Project
                 </div>
             </div>
         </div>
@@ -587,9 +753,25 @@
             </div>
         </div>
         <div class="page-content" id="main-content-tesla" style="display:none;">
-            <div class="notion-section">
-                <div class="notion-project-title">Tesla Earnings Presentation</div>
-                <div class="notion-project-desc">This is your Tesla Earnings Presentation project page.</div>
+            <div class="tesla-page-title">Tesla Earnings Project</div>
+            <div class="tesla-content-row">
+                <div class="tesla-main-col">
+                    <div class="action-needed-card">
+                        <div class="action-needed-title">Action Needed</div>
+                        <div class="action-needed-message" id="typewriter-message"></div>
+                        <div class="action-needed-chat">
+                            <input type="text" id="action-chat-input" class="action-chat-input" placeholder="Type your response..." />
+                            <button id="action-chat-send" class="action-chat-send">Send</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="tesla-tasks-card">
+                    <div class="tesla-tasks-title">Tasks</div>
+                    <ul class="tesla-tasks-list">
+                        <li>Complete PowerPoint edits</li>
+                        <li>Forward to Manager Jeff on Slack</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -631,6 +813,43 @@
                     btn.classList.remove('connected');
                     btn.textContent = 'Connect';
                 }
+            });
+        });
+        // Typewriter effect for Action Needed card
+        function typewriterEffect(element, message, delay = 200, charDelay = 22) {
+            element.textContent = '';
+            let i = 0;
+            let cursor = document.createElement('span');
+            cursor.className = 'typewriter-cursor';
+            cursor.textContent = '|';
+            element.appendChild(cursor);
+
+            setTimeout(function typeNext() {
+                if (i < message.length) {
+                    element.insertBefore(document.createTextNode(message[i]), cursor);
+                    i++;
+                    setTimeout(typeNext, charDelay);
+                } else {
+                    cursor.remove(); // Remove cursor when done
+                }
+            }, delay);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only run if the Tesla page is visible on load
+            if (document.getElementById('main-content-tesla').style.display !== 'none') {
+                const msg = "Hi Rohit! Based on your meeting with your manager, it looks like you will need to make some updates to the presentation.";
+                typewriterEffect(document.getElementById('typewriter-message'), msg);
+            }
+        });
+
+        // Also trigger the typewriter effect when switching to the Tesla page
+        document.querySelectorAll('.project-item').forEach(item => {
+            item.addEventListener('click', function() {
+                setTimeout(() => {
+                    const msg = "Hi Rohit! Based on your meeting with your manager, it looks like you will need to make some updates to the presentation.";
+                    typewriterEffect(document.getElementById('typewriter-message'), msg);
+                }, 300); // slight delay to allow DOM to update
             });
         });
     </script>
