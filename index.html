@@ -2,644 +2,14 @@
 <html>
 <head>
     <title>Notion-like App</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            height: 100vh;
-            background: #fcfbf7;
-            color: #222;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: 260px;
-            background-color: #f7f6f3;
-            border-right: 1px solid #ececec;
-            display: flex;
-            flex-direction: column;
-            padding: 0 0 20px 0;
-        }
-
-        .sidebar-section {
-            padding: 0 20px;
-            margin-bottom: 18px;
-        }
-
-        .sidebar-divider {
-            height: 1px;
-            background: #ececec;
-            margin: 12px 0;
-        }
-
-        .profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 40px 20px 16px 20px;
-        }
-
-        .avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: #e0dfdb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 600;
-            color: #8b8a86;
-        }
-
-        .profile-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .profile-name {
-            font-size: 15px;
-            font-weight: 600;
-            color: #37352f;
-        }
-
-        .profile-status {
-            font-size: 12px;
-            color: #b3b3b1;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 7px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            color: #37352f;
-            font-size: 15px;
-            font-weight: 500;
-            transition: background 0.1s;
-            margin-bottom: 2px;
-        }
-
-        .nav-item.active, .nav-item:hover {
-            background: #ececec;
-        }
-
-        .nav-icon {
-            font-size: 18px;
-            color: #b3b3b1;
-        }
-
-        .section-label {
-            font-size: 12px;
-            color: #b3b3b1;
-            font-weight: 600;
-            letter-spacing: 1px;
-            margin: 10px 0 6px 2px;
-        }
-
-        .project-list {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .project-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 7px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            color: #37352f;
-            font-size: 15px;
-            font-weight: 400;
-            transition: background 0.1s;
-        }
-
-        .project-item.active, .project-item:hover {
-            background: #ececec;
-        }
-
-        .project-icon {
-            font-size: 17px;
-            color: #b3b3b1;
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            padding: 0;
-            background: #fcfbf7;
-            min-height: 100vh;
-        }
-
-        .page-title {
-            font-size: 38px;
-            font-weight: 700;
-            color: #37352f;
-            margin-bottom: 20px;
-        }
-
-        .page-content {
-            min-height: 100vh;
-            padding: 0;
-            margin: 0;
-            background: #fcfbf7;
-        }
-
-        .tool-card {
-            background: #fff;
-            border: 1px solid #ececec;
-            border-radius: 16px;
-            padding: 24px 18px 18px 18px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 18px;
-            box-shadow: none;
-            transition: border 0.12s;
-            cursor: pointer;
-            position: relative;
-        }
-        .tool-card:hover {
-            border: 1px solid #bdbdbd;
-        }
-        .tool-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 6px;
-        }
-        .tool-name {
-            font-size: 17px;
-            font-weight: 600;
-            color: #222;
-            margin-bottom: 8px;
-        }
-        .connect-btn {
-            font-size: 1rem;
-            font-weight: 500;
-            padding: 7px 22px;
-            border-radius: 8px;
-            border: 1px solid #ececec;
-            background: #f7f6f3;
-            color: #222;
-            cursor: pointer;
-            transition: background 0.15s, border 0.15s, color 0.15s;
-            margin-top: 2px;
-            box-shadow: none;
-        }
-        .connect-btn:hover:enabled {
-            background: #ececec;
-            border: 1px solid #bdbdbd;
-        }
-        .connect-btn.connected {
-            background: #e6f4ea;
-            color: #1a7f37;
-            border: 1px solid #b7e4c7;
-            position: relative;
-        }
-        .connect-btn.connected:before {
-            content: '\2714';
-            font-size: 1.1em;
-            color: #1a7f37;
-            margin-right: 7px;
-            display: inline-block;
-        }
-        .todo-card {
-            background: #fff;
-            border: 1.5px solid #ececec;
-            border-radius: 16px;
-            box-shadow: 0 1px 6px rgba(60,60,60,0.04);
-            padding: 22px 28px 18px 28px;
-            min-width: 210px;
-            max-width: 260px;
-            margin-bottom: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            transition: box-shadow 0.12s, border 0.12s;
-        }
-        .todo-card:hover {
-            border: 1.5px solid #bdbdbd;
-            box-shadow: 0 2px 12px rgba(60,60,60,0.08);
-        }
-        .todo-title {
-            font-size: 1.08rem;
-            font-weight: 600;
-            color: #222;
-            margin-bottom: 2px;
-        }
-        .todo-desc {
-            font-size: 1rem;
-            color: #666;
-        }
-
-        .notion-home {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 110px;
-        }
-
-        .notion-greeting {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            margin-bottom: 32px;
-        }
-
-        .notion-greeting-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: #f3f2ef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            border: 1px solid #ececec;
-        }
-
-        .notion-greeting-text {
-            font-size: 2.1rem;
-            font-weight: 700;
-            color: #222;
-            letter-spacing: -0.5px;
-        }
-
-        .notion-searchbar-wrap {
-            width: 100%;
-            max-width: 900px;
-            margin-bottom: 44px;
-        }
-
-        .notion-searchbar-box {
-            background: #fff;
-            border-radius: 18px;
-            border: 1.5px solid #ececec;
-            box-shadow: 0 4px 32px 0 rgba(60,60,60,0.06);
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            width: 100%;
-        }
-        .notion-searchbar-input {
-            width: 100%;
-            font-size: 1.08rem;
-            padding: 36px 36px 24px 36px;
-            border: none;
-            outline: none;
-            background: transparent;
-            color: #222;
-            border-radius: 18px 18px 0 0;
-            font-weight: 500;
-        }
-        .notion-searchbar-input::placeholder {
-            color: #b3b3b1;
-            font-weight: 400;
-        }
-        .notion-searchbar-bottom {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding: 0 28px 18px 28px;
-            border-top: 1px solid #f3f3f3;
-            gap: 0;
-        }
-        .notion-searchbar-icons {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-        .notion-searchbar-icon,
-        .notion-searchbar-arrow {
-            color: #b3b3b1;
-            font-size: 1.25rem;
-            opacity: 0.85;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 32px;
-            width: 32px;
-            border-radius: 50%;
-            transition: background 0.12s;
-        }
-        .notion-searchbar-icon:hover,
-        .notion-searchbar-arrow:hover {
-            background: #ececec;
-        }
-        .notion-searchbar-sources {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 1rem;
-            color: #888;
-            background: #fff;
-            border-radius: 8px;
-            padding: 2px 10px 2px 2px;
-            border: 1px solid #ececec;
-        }
-        .notion-searchbar-sources img {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: #fff;
-            border: 1px solid #ececec;
-        }
-        .notion-todo-section {
-            width: 100%;
-            max-width: 900px;
-            margin-top: 36px;
-        }
-        .notion-todo-title {
-            font-size: 1.08rem;
-            font-weight: 600;
-            color: #888;
-            margin-bottom: 18px;
-            letter-spacing: 0.5px;
-        }
-        .notion-todo-list {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .notion-todo-card {
-            background: #fff;
-            border: 1px solid #ececec;
-            border-radius: 12px;
-            padding: 22px 28px 18px 28px;
-            min-width: 210px;
-            max-width: 260px;
-            margin-bottom: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            transition: border 0.12s;
-            position: relative;
-        }
-        .notion-todo-card-title {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: #222;
-            margin-bottom: 2px;
-        }
-        .notion-todo-card-desc {
-            font-size: 1rem;
-            color: #666;
-        }
-        .todo-start-btn {
-            margin-top: 10px;
-            align-self: flex-start;
-            background: #f7f6f3;
-            color: #222;
-            border: 1px solid #ececec;
-            border-radius: 7px;
-            font-size: 0.98rem;
-            font-weight: 500;
-            padding: 6px 18px;
-            cursor: pointer;
-            transition: background 0.13s, border 0.13s;
-        }
-        .todo-start-btn:hover {
-            background: #ececec;
-        }
-        /* Tools & Project Page Styles (match Notion) */
-        .notion-section {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin: 56px auto 0 auto;
-            max-width: 900px;
-            width: 100%;
-        }
-        .notion-section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #222;
-            margin-bottom: 18px;
-        }
-        .notion-section-desc {
-            color: #666;
-            font-size: 1.08rem;
-            margin-bottom: 24px;
-        }
-        .notion-tool-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            width: 100%;
-        }
-        .notion-project-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #222;
-            margin-bottom: 18px;
-        }
-        .notion-project-desc {
-            color: #666;
-            font-size: 1.08rem;
-        }
-        .sidebar-icon {
-            width: 18px;
-            height: 18px;
-            display: inline-block;
-            vertical-align: middle;
-            color: #b3b3b1;
-        }
-        .tool-card.add-tool {
-            justify-content: center;
-            align-items: center;
-            background: #faf9f6;
-            border: 1.5px dashed #ececec;
-            color: #b3b3b1;
-            cursor: pointer;
-            min-height: 120px;
-        }
-        .tool-card.add-tool:hover {
-            border: 1.5px dashed #bdbdbd;
-            background: #f3f2ef;
-        }
-        .action-needed-card {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px 0 rgba(60,60,60,0.10);
-            border: 1px solid #ececec;
-            padding: 32px 32px 24px 32px;
-            margin-bottom: 32px;
-            margin-top: 10px;
-            max-width: 600px;
-            width: 100%;
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            animation: fadeIn 0.7s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-16px);}
-            to { opacity: 1; transform: none;}
-        }
-        .action-needed-title {
-            font-size: 1.18rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 14px;
-            letter-spacing: 0.2px;
-        }
-        .action-needed-message {
-            font-size: 1.08rem;
-            color: #222;
-            min-height: 48px;
-            margin-bottom: 18px;
-            line-height: 1.6;
-            word-break: break-word;
-        }
-        .action-needed-chat {
-            display: flex;
-            width: 100%;
-            gap: 10px;
-            margin-top: 6px;
-        }
-        .action-chat-input {
-            flex: 1;
-            border: 1px solid #ececec;
-            border-radius: 8px;
-            padding: 8px 14px;
-            font-size: 1rem;
-            background: #faf9f6;
-            color: #222;
-            outline: none;
-            transition: border 0.13s;
-        }
-        .action-chat-input:focus {
-            border: 1px solid #b3b3b1;
-            background: #fff;
-        }
-        .action-chat-send {
-            background: #f7f6f3;
-            color: #222;
-            border: 1px solid #ececec;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 500;
-            padding: 8px 18px;
-            cursor: pointer;
-            transition: background 0.13s, border 0.13s;
-        }
-        .action-chat-send:hover {
-            background: #ececec;
-        }
-        .typewriter-cursor {
-            display: inline-block;
-            width: 1ch;
-            animation: blink 1s steps(1) infinite;
-            color: #888;
-        }
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-        .tesla-content-row {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            gap: 40px;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            margin-top: 0;
-            min-height: 400px;
-        }
-        .tesla-main-col {
-            flex: 1 1 0;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .tesla-tasks-card {
-            background: #f7f6f3;
-            border: 1px solid #ececec;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px 0 rgba(60,60,60,0.04);
-            padding: 28px 28px 22px 28px;
-            min-width: 260px;
-            max-width: 320px;
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .tesla-tasks-title {
-            font-size: 1.08rem;
-            font-weight: 700;
-            color: #37352f;
-            margin-bottom: 16px;
-            letter-spacing: 0.5px;
-        }
-        .tesla-tasks-list {
-            list-style: disc inside;
-            color: #444;
-            font-size: 1rem;
-            padding-left: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .tesla-tasks-list li {
-            margin-left: 16px;
-            line-height: 1.6;
-        }
-        @media (max-width: 900px) {
-            .tesla-content-row {
-                flex-direction: column;
-                gap: 24px;
-            }
-            .tesla-tasks-card {
-                max-width: 100%;
-                width: 100%;
-            }
-        }
-        .tesla-page-title {
-            font-size: 2.1rem;
-            font-weight: 700;
-            color: #222;
-            margin: 48px auto 32px auto;
-            max-width: 1200px;
-            width: 100%;
-            letter-spacing: -0.5px;
-            padding-left: 2px;
-        }
-        @media (max-width: 900px) {
-            .tesla-page-title {
-                margin: 32px 0 24px 0;
-                padding-left: 0;
-                text-align: center;
-            }
-            .tesla-content-row {
-                margin-top: 0;
-            }
-        }
-        .tesla-content-row {
-            margin-top: 0;
-        }
-    </style>
+    
+    <!-- Add React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- External CSS file -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="sidebar">
@@ -753,29 +123,560 @@
             </div>
         </div>
         <div class="page-content" id="main-content-tesla" style="display:none;">
-            <div class="tesla-page-title">Tesla Earnings Project</div>
-            <div class="tesla-content-row">
-                <div class="tesla-main-col">
-                    <div class="action-needed-card">
-                        <div class="action-needed-title">Action Needed</div>
-                        <div class="action-needed-message" id="typewriter-message"></div>
-                        <div class="action-needed-chat">
-                            <input type="text" id="action-chat-input" class="action-chat-input" placeholder="Type your response..." />
-                            <button id="action-chat-send" class="action-chat-send">Send</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="tesla-tasks-card">
-                    <div class="tesla-tasks-title">Tasks</div>
-                    <ul class="tesla-tasks-list">
-                        <li>Complete PowerPoint edits</li>
-                        <li>Forward to Manager Jeff on Slack</li>
-                    </ul>
-                </div>
-            </div>
+            <div id="tesla-react-container"></div>
         </div>
     </div>
 
+    <!-- React Components -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Tesla Chat Component
+        function TeslaChat() {
+            const [isInitialLoading, setIsInitialLoading] = useState(true);
+            const [loadingText, setLoadingText] = useState('');
+            const [showActionPrompt, setShowActionPrompt] = useState(false);
+            const [messages, setMessages] = useState([]);
+            const [inputText, setInputText] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const [showTasks, setShowTasks] = useState(false);
+            const [completedTasks, setCompletedTasks] = useState(new Set());
+            const [emailStep, setEmailStep] = useState('draft'); // draft, sending, sent, received
+            const messagesEndRef = useRef(null);
+            const inputRef = useRef(null);
+
+            // Loading sequence
+            useEffect(() => {
+                const loadingSequence = [
+                    { text: "Analyzing your latest Zoom meeting", duration: 2000 },
+                    { text: "Processing conversation with your manager", duration: 2000 },
+                    { text: "Extracting action items and deadlines", duration: 2000 },
+                    { text: "Prioritizing tasks based on urgency", duration: 2000 },
+                    { text: "Preparing your personalized task list", duration: 1500 }
+                ];
+
+                let currentStep = 0;
+                
+                const runStep = () => {
+                    if (currentStep < loadingSequence.length) {
+                        setLoadingText(loadingSequence[currentStep].text);
+                        setTimeout(() => {
+                            currentStep++;
+                            runStep();
+                        }, loadingSequence[currentStep].duration);
+                    } else {
+                        // Loading complete, show action prompt
+                        setTimeout(() => {
+                            setIsInitialLoading(false);
+                            setShowActionPrompt(true);
+                            
+                            // Add initial AI message after action prompt
+                            setTimeout(() => {
+                                setMessages([{
+                                    id: 1,
+                                    text: "Hi Rohit! I've analyzed your meeting with your manager. Based on the discussion, I've identified several action items for your Tesla earnings presentation.",
+                                    sender: 'assistant',
+                                    timestamp: new Date()
+                                }]);
+                            }, 1000);
+                        }, 500);
+                    }
+                };
+
+                runStep();
+            }, []);
+
+            const handleActionResponse = (action) => {
+                setShowActionPrompt(false);
+                
+                if (action === 'yes') {
+                    // Show email draft in chat
+                    setTimeout(() => {
+                        const emailDraftMessage = {
+                            id: 2,
+                            text: "I've drafted an email to Sarah Chen requesting the Q3 financial sheet:",
+                            sender: 'assistant',
+                            timestamp: new Date(),
+                            hasEmailDraft: true,
+                            emailData: {
+                                to: 'sarah.chen@company.com',
+                                subject: 'Request for Q3 Financial Sheet - Tesla Earnings Presentation',
+                                body: `Hi Sarah,
+
+I hope this email finds you well. I'm currently working on the Tesla earnings presentation for our upcoming stakeholder meeting, and I need the latest Q3 financial sheet to ensure our projections are accurate.
+
+Could you please send me the most recent Q3 financial data when you have a moment? This will help me finalize the revenue projections section.
+
+Thanks in advance for your help!
+
+Best regards,
+Rohit`
+                            }
+                        };
+                        setMessages(prev => [...prev, emailDraftMessage]);
+                    }, 1000);
+                } else {
+                    const skipMessage = {
+                        id: 2,
+                        text: "No problem! I'll keep this task in your list for later. Is there anything else from your meeting that you'd like to work on right now?",
+                        sender: 'assistant',
+                        timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, skipMessage]);
+                }
+            };
+
+            const handleSendEmail = () => {
+                setEmailStep('sending');
+                
+                // Add message about sending
+                const sendingMessage = {
+                    id: messages.length + 1,
+                    text: "Sending email to Sarah Chen...",
+                    sender: 'assistant',
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, sendingMessage]);
+                
+                setTimeout(() => {
+                    setEmailStep('sent');
+                    
+                    // Mark first task as completed
+                    setCompletedTasks(prev => new Set([...prev, 1]));
+                    
+                    const sentMessage = {
+                        id: messages.length + 2,
+                        text: "✅ Email sent successfully! I've marked 'Request Q3 Financial Sheet' as completed. Sarah should receive it shortly and will likely respond with the financial data.",
+                        sender: 'assistant',
+                        timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, sentMessage]);
+                    
+                    // Wait 5 seconds then show received file
+                    setTimeout(() => {
+                        setEmailStep('received');
+                        
+                        const receivedMessage = {
+                            id: messages.length + 3,
+                            text: "📧 Great news! Sarah Chen just replied with the Q3 financial sheet:",
+                            sender: 'assistant',
+                            timestamp: new Date(),
+                            hasReceivedFile: true,
+                            fileData: {
+                                name: 'Tesla_Q3_Financial_Sheet.xlsx',
+                                sender: 'Sarah Chen',
+                                size: '2.3 MB'
+                            }
+                        };
+                        setMessages(prev => [...prev, receivedMessage]);
+                        
+                        // After 2 seconds, show context addition and PowerPoint suggestion
+                        setTimeout(() => {
+                            const contextMessage = {
+                                id: messages.length + 4,
+                                text: "✅ I've analyzed the financial data and added it to my context. Now I can help you update your Tesla presentation with the latest Q3 numbers.",
+                                sender: 'assistant',
+                                timestamp: new Date()
+                            };
+                            setMessages(prev => [...prev, contextMessage]);
+                            
+                            // Show PowerPoint suggestion
+                            setTimeout(() => {
+                                const powerpointMessage = {
+                                    id: messages.length + 5,
+                                    text: "I can help you update your PowerPoint presentation with the new data:",
+                                    sender: 'assistant',
+                                    timestamp: new Date(),
+                                    hasPowerpointSuggestion: true,
+                                    powerpointData: {
+                                        fileName: 'Tesla_Earnings_Presentation.pptx',
+                                        suggestedEdits: [
+                                            'Update Q3 revenue figures on slide 3',
+                                            'Refresh profit margin charts on slide 7',
+                                            'Add new quarterly comparison on slide 9',
+                                            'Update executive summary with key insights'
+                                        ]
+                                    }
+                                };
+                                setMessages(prev => [...prev, powerpointMessage]);
+                            }, 1500);
+                        }, 2000);
+                    }, 5000);
+                }, 2000);
+            };
+
+            const handleOpenPowerpoint = () => {
+                // Mark second task as completed
+                setCompletedTasks(prev => new Set([...prev, 2]));
+                
+                const openingMessage = {
+                    id: messages.length + 1,
+                    text: "🎯 Opening Tesla_Earnings_Presentation.pptx and applying the revenue updates... I've marked 'Update Revenue Projections' as completed.",
+                    sender: 'assistant',
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, openingMessage]);
+                
+                // After 3 seconds, show completion
+                setTimeout(() => {
+                    const completedMessage = {
+                        id: messages.length + 2,
+                        text: "✅ PowerPoint presentation updated successfully! The latest Q3 financial data has been integrated into slides 3, 7, and 9. Your revenue projections now reflect the most current numbers from Sarah's data.",
+                        sender: 'assistant',
+                        timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, completedMessage]);
+                }, 3000);
+            };
+
+            const handleToggleChat = () => {
+                setShowTasks(!showTasks);
+            };
+
+            const tasks = [
+                {
+                    id: 1,
+                    title: "Request Q3 Financial Sheet",
+                    description: "Email Sarah Chen for latest Q3 financial data for Tesla presentation",
+                    priority: "high"
+                },
+                {
+                    id: 2,
+                    title: "Update Revenue Projections",
+                    description: "Incorporate latest earnings data and adjust revenue projections based on manager feedback",
+                    priority: "high"
+                },
+                {
+                    id: 3,
+                    title: "Review Competitor Analysis",
+                    description: "Compare Tesla's performance against traditional automakers and EV competitors",
+                    priority: "medium"
+                },
+                {
+                    id: 4,
+                    title: "Prepare Executive Summary",
+                    description: "Create 1-page summary highlighting key insights for stakeholder meeting",
+                    priority: "medium"
+                },
+                {
+                    id: 5,
+                    title: "Schedule Follow-up Meeting",
+                    description: "Book time with manager to review updated presentation before final delivery",
+                    priority: "low"
+                }
+            ];
+
+            const scrollToBottom = () => {
+                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            };
+
+            useEffect(() => {
+                scrollToBottom();
+            }, [messages]);
+
+            const formatTime = (date) => {
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            };
+
+            const handleSendMessage = async () => {
+                if (!inputText.trim() || isLoading) return;
+
+                const newMessage = {
+                    id: messages.length + 1,
+                    text: inputText,
+                    sender: 'user',
+                    timestamp: new Date()
+                };
+
+                setMessages(prev => [...prev, newMessage]);
+                setInputText('');
+                setIsLoading(true);
+
+                // Simulate AI response
+                setTimeout(() => {
+                    const responses = [
+                        "I understand. Let me help you with those presentation updates. What specific changes did your manager request?",
+                        "That sounds important. Can you tell me more about what needs to be updated in the presentation?",
+                        "I'm here to help! What aspects of the Tesla earnings presentation need revision?",
+                        "Got it. Let's work on those updates together. What feedback did you receive about the presentation?"
+                    ];
+                    
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    
+                    const aiResponse = {
+                        id: messages.length + 2,
+                        text: randomResponse,
+                        sender: 'assistant',
+                        timestamp: new Date()
+                    };
+                    
+                    setMessages(prev => [...prev, aiResponse]);
+                    setIsLoading(false);
+                }, 1500);
+            };
+
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                }
+            };
+
+            const handleInputChange = (e) => {
+                setInputText(e.target.value);
+                // Auto-resize textarea
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+            };
+
+            // Show loading overlay
+            if (isInitialLoading) {
+                return (
+                    <div className="tesla-chat-container">
+                        <div className="tesla-chat-header">
+                            <div className="tesla-chat-title">Tesla Earnings Project</div>
+                            <button className="tesla-chat-toggle" onClick={handleToggleChat}>
+                                📋
+                            </button>
+                        </div>
+                        <div className="tesla-chat-content">
+                            <div className="tesla-loading-overlay">
+                                <div className="tesla-loading-content">
+                                    <div className="tesla-loading-icon"></div>
+                                    <div className="tesla-loading-title">AI Assistant</div>
+                                    <div className="tesla-loading-text">
+                                        {loadingText}
+                                        <span className="tesla-loading-dots"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="tesla-chat-container">
+                    <div className="tesla-chat-header">
+                        <div className="tesla-chat-title">Tesla Earnings Project</div>
+                        <button className="tesla-chat-toggle" onClick={handleToggleChat}>
+                            📋
+                        </button>
+                    </div>
+                    <div className="tesla-chat-content">
+                        <div className={`tesla-chat-main ${showTasks ? 'with-tasks' : ''}`}>
+                            {showActionPrompt && (
+                                <div className="tesla-action-prompt">
+                                    <div className="tesla-action-title">🎯 Priority Action Identified</div>
+                                    <div className="tesla-action-text">
+                                        Your manager mentioned you need the Q3 financial sheet from Sarah Chen for your Tesla presentation. This seems to be blocking your progress.
+                                        <br/><br/>
+                                        Would you like me to draft an email to Sarah requesting this information?
+                                    </div>
+                                    <div className="tesla-action-buttons">
+                                        <button 
+                                            className="tesla-action-btn primary"
+                                            onClick={() => handleActionResponse('yes')}
+                                        >
+                                            Yes, draft email
+                                        </button>
+                                        <button 
+                                            className="tesla-action-btn secondary"
+                                            onClick={() => handleActionResponse('no')}
+                                        >
+                                            Not right now
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div className="tesla-chat-messages">
+                                {messages.map((message) => (
+                                    <div key={message.id} className={`tesla-chat-message ${message.sender}`}>
+                                        <div className={`tesla-chat-bubble ${message.sender}`}>
+                                            {message.text}
+                                        </div>
+                                        
+                                        {/* Email Draft Component */}
+                                        {message.hasEmailDraft && (
+                                            <div className="tesla-email-draft-box">
+                                                <div className="tesla-email-draft-header">
+                                                    <span className="tesla-email-draft-icon">📧</span>
+                                                    <span className="tesla-email-draft-title">Email Draft</span>
+                                                </div>
+                                                <div className="tesla-email-draft-content">
+                                                    <div className="tesla-email-draft-field">
+                                                        <strong>To:</strong> {message.emailData.to}
+                                                    </div>
+                                                    <div className="tesla-email-draft-field">
+                                                        <strong>Subject:</strong> {message.emailData.subject}
+                                                    </div>
+                                                    <div className="tesla-email-draft-body">
+                                                        {message.emailData.body.split('\n').map((line, index) => (
+                                                            <p key={index}>{line}</p>
+                                                        ))}
+                                                    </div>
+                                                    <div className="tesla-email-draft-actions">
+                                                        <button 
+                                                            className="tesla-email-draft-send"
+                                                            onClick={handleSendEmail}
+                                                            disabled={emailStep !== 'draft'}
+                                                        >
+                                                            {emailStep === 'draft' ? 'Send Email' : 
+                                                             emailStep === 'sending' ? 'Sending...' : 
+                                                             'Email Sent ✓'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        {/* Received File Component */}
+                                        {message.hasReceivedFile && (
+                                            <div className="tesla-file-received-box">
+                                                <div className="tesla-file-received-header">
+                                                    <span className="tesla-file-received-icon">📎</span>
+                                                    <span className="tesla-file-received-title">File Received</span>
+                                                </div>
+                                                <div className="tesla-file-received-content">
+                                                    <div className="tesla-file-received-info">
+                                                        <div className="tesla-file-received-name">{message.fileData.name}</div>
+                                                        <div className="tesla-file-received-details">
+                                                            From: {message.fileData.sender} • {message.fileData.size}
+                                                        </div>
+                                                    </div>
+                                                    <div className="tesla-file-received-status">
+                                                        Processing...
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        {/* PowerPoint Suggestion Component */}
+                                        {message.hasPowerpointSuggestion && (
+                                            <div className="tesla-powerpoint-suggestion-box">
+                                                <div className="tesla-powerpoint-suggestion-header">
+                                                    <span className="tesla-powerpoint-suggestion-icon">📊</span>
+                                                    <span className="tesla-powerpoint-suggestion-title">PowerPoint Suggestion</span>
+                                                </div>
+                                                <div className="tesla-powerpoint-suggestion-content">
+                                                    <div className="tesla-powerpoint-suggestion-field">
+                                                        <strong>Suggested Edits:</strong>
+                                                    </div>
+                                                    <div className="tesla-powerpoint-suggestion-body">
+                                                        {message.powerpointData.suggestedEdits.map((edit, index) => (
+                                                            <p key={index}>{edit}</p>
+                                                        ))}
+                                                    </div>
+                                                    <div className="tesla-powerpoint-suggestion-actions">
+                                                        <button 
+                                                            className="tesla-powerpoint-suggestion-apply"
+                                                            onClick={handleOpenPowerpoint}
+                                                        >
+                                                            Apply Suggestion
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <div className="tesla-chat-timestamp">
+                                            {formatTime(message.timestamp)}
+                                        </div>
+                                    </div>
+                                ))}
+                                
+                                {isLoading && (
+                                    <div className="tesla-chat-loading">
+                                        <div className="tesla-chat-bubble assistant">
+                                            <div className="tesla-typing-indicator">
+                                                <div className="tesla-typing-dot"></div>
+                                                <div className="tesla-typing-dot"></div>
+                                                <div className="tesla-typing-dot"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <div ref={messagesEndRef} />
+                            </div>
+
+                            <div className="tesla-chat-input-container">
+                                <div className="tesla-chat-input-box">
+                                    <textarea
+                                        ref={inputRef}
+                                        value={inputText}
+                                        onChange={handleInputChange}
+                                        onKeyPress={handleKeyPress}
+                                        placeholder="Message about your Tesla project..."
+                                        className="tesla-chat-input"
+                                        rows={1}
+                                    />
+                                    <button
+                                        onClick={handleSendMessage}
+                                        disabled={!inputText.trim() || isLoading}
+                                        className={`tesla-chat-send ${inputText.trim() && !isLoading ? 'active' : ''}`}
+                                    >
+                                        ↑
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`tesla-task-panel ${showTasks ? 'open' : ''}`}>
+                            <div className="tesla-task-header">
+                                <div className="tesla-task-title">Project Tasks</div>
+                                <div className="tesla-task-subtitle">Tesla Earnings Presentation</div>
+                            </div>
+                            <div className="tesla-task-list">
+                                {tasks.map((task) => (
+                                    <div key={task.id} className={`tesla-task-item ${completedTasks.has(task.id) ? 'completed' : ''}`}>
+                                        <div className="tesla-task-checkbox">
+                                            {completedTasks.has(task.id) ? '✓' : '○'}
+                                        </div>
+                                        <div className="tesla-task-content">
+                                            <div className="tesla-task-item-title">{task.title}</div>
+                                            <div className="tesla-task-item-desc">{task.description}</div>
+                                            <div className={`tesla-task-item-priority ${task.priority}`}>
+                                                {task.priority.toUpperCase()} PRIORITY
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Global variable to track if React component is mounted
+        let teslaReactMounted = false;
+
+        // Function to mount React component
+        function mountTeslaChat() {
+            if (!teslaReactMounted) {
+                const container = document.getElementById('tesla-react-container');
+                if (container) {
+                    ReactDOM.render(<TeslaChat />, container);
+                    teslaReactMounted = true;
+                }
+            }
+        }
+
+        // Function to unmount React component
+        function unmountTeslaChat() {
+            if (teslaReactMounted) {
+                const container = document.getElementById('tesla-react-container');
+                if (container) {
+                    ReactDOM.unmountComponentAtNode(container);
+                    teslaReactMounted = false;
+                }
+            }
+        }
+    </script>
+
+    <!-- Existing JavaScript (keep all existing functionality) -->
     <script>
         // Home tab click
         document.getElementById('home-tab').addEventListener('click', function() {
@@ -784,7 +685,9 @@
             document.getElementById('main-content-home').style.display = '';
             document.getElementById('main-content-tools').style.display = 'none';
             document.getElementById('main-content-tesla').style.display = 'none';
+            unmountTeslaChat();
         });
+
         // Tools tab click
         document.getElementById('tools-tab').addEventListener('click', function() {
             document.querySelectorAll('.nav-item, .project-item').forEach(i => i.classList.remove('active'));
@@ -792,8 +695,10 @@
             document.getElementById('main-content-home').style.display = 'none';
             document.getElementById('main-content-tools').style.display = '';
             document.getElementById('main-content-tesla').style.display = 'none';
+            unmountTeslaChat();
         });
-        // Project click
+
+        // Project click - Updated to use React
         document.querySelectorAll('.project-item').forEach(item => {
             item.addEventListener('click', function() {
                 document.querySelectorAll('.nav-item, .project-item').forEach(i => i.classList.remove('active'));
@@ -801,9 +706,15 @@
                 document.getElementById('main-content-home').style.display = 'none';
                 document.getElementById('main-content-tools').style.display = 'none';
                 document.getElementById('main-content-tesla').style.display = '';
+                
+                // Mount React component with a small delay
+                setTimeout(() => {
+                    mountTeslaChat();
+                }, 100);
             });
         });
-        // Connect button logic
+
+        // Keep all existing functionality for other parts
         document.querySelectorAll('.connect-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 if (!btn.classList.contains('connected')) {
@@ -813,43 +724,6 @@
                     btn.classList.remove('connected');
                     btn.textContent = 'Connect';
                 }
-            });
-        });
-        // Typewriter effect for Action Needed card
-        function typewriterEffect(element, message, delay = 200, charDelay = 22) {
-            element.textContent = '';
-            let i = 0;
-            let cursor = document.createElement('span');
-            cursor.className = 'typewriter-cursor';
-            cursor.textContent = '|';
-            element.appendChild(cursor);
-
-            setTimeout(function typeNext() {
-                if (i < message.length) {
-                    element.insertBefore(document.createTextNode(message[i]), cursor);
-                    i++;
-                    setTimeout(typeNext, charDelay);
-                } else {
-                    cursor.remove(); // Remove cursor when done
-                }
-            }, delay);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Only run if the Tesla page is visible on load
-            if (document.getElementById('main-content-tesla').style.display !== 'none') {
-                const msg = "Hi Rohit! Based on your meeting with your manager, it looks like you will need to make some updates to the presentation.";
-                typewriterEffect(document.getElementById('typewriter-message'), msg);
-            }
-        });
-
-        // Also trigger the typewriter effect when switching to the Tesla page
-        document.querySelectorAll('.project-item').forEach(item => {
-            item.addEventListener('click', function() {
-                setTimeout(() => {
-                    const msg = "Hi Rohit! Based on your meeting with your manager, it looks like you will need to make some updates to the presentation.";
-                    typewriterEffect(document.getElementById('typewriter-message'), msg);
-                }, 300); // slight delay to allow DOM to update
             });
         });
     </script>

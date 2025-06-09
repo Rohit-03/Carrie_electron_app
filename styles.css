@@ -1,0 +1,1609 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    background: #fcfbf7;
+    color: #222;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 260px;
+    background-color: #f7f6f3;
+    border-right: 1px solid #ececec;
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 20px 0;
+}
+
+.sidebar-section {
+    padding: 0 20px;
+    margin-bottom: 18px;
+}
+
+.sidebar-divider {
+    height: 1px;
+    background: #ececec;
+    margin: 12px 0;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 40px 20px 16px 20px;
+}
+
+.avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #e0dfdb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+    color: #8b8a86;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #37352f;
+}
+
+.profile-status {
+    font-size: 12px;
+    color: #b3b3b1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #37352f;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background 0.1s;
+    margin-bottom: 2px;
+}
+
+.nav-item.active, .nav-item:hover {
+    background: #ececec;
+}
+
+.nav-icon {
+    font-size: 18px;
+    color: #b3b3b1;
+}
+
+.section-label {
+    font-size: 12px;
+    color: #b3b3b1;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin: 10px 0 6px 2px;
+}
+
+.project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.project-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #37352f;
+    font-size: 15px;
+    font-weight: 400;
+    transition: background 0.1s;
+}
+
+.project-item.active, .project-item:hover {
+    background: #ececec;
+}
+
+.project-icon {
+    font-size: 17px;
+    color: #b3b3b1;
+}
+
+/* Main Content Styles */
+.main-content {
+    flex: 1;
+    padding: 0;
+    background: #fcfbf7;
+    min-height: 100vh;
+}
+
+.page-title {
+    font-size: 38px;
+    font-weight: 700;
+    color: #37352f;
+    margin-bottom: 20px;
+}
+
+.page-content {
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+    background: #fcfbf7;
+}
+
+.tool-card {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    padding: 24px 18px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    box-shadow: none;
+    transition: border 0.12s;
+    cursor: pointer;
+    position: relative;
+}
+.tool-card:hover {
+    border: 1px solid #bdbdbd;
+}
+.tool-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+}
+.tool-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 8px;
+}
+.connect-btn {
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 7px 22px;
+    border-radius: 8px;
+    border: 1px solid #ececec;
+    background: #f7f6f3;
+    color: #222;
+    cursor: pointer;
+    transition: background 0.15s, border 0.15s, color 0.15s;
+    margin-top: 2px;
+    box-shadow: none;
+}
+.connect-btn:hover:enabled {
+    background: #ececec;
+    border: 1px solid #bdbdbd;
+}
+.connect-btn.connected {
+    background: #e6f4ea;
+    color: #1a7f37;
+    border: 1px solid #b7e4c7;
+    position: relative;
+}
+.connect-btn.connected:before {
+    content: '\2714';
+    font-size: 1.1em;
+    color: #1a7f37;
+    margin-right: 7px;
+    display: inline-block;
+}
+.todo-card {
+    background: #fff;
+    border: 1.5px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 1px 6px rgba(60,60,60,0.04);
+    padding: 22px 28px 18px 28px;
+    min-width: 210px;
+    max-width: 260px;
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: box-shadow 0.12s, border 0.12s;
+}
+.todo-card:hover {
+    border: 1.5px solid #bdbdbd;
+    box-shadow: 0 2px 12px rgba(60,60,60,0.08);
+}
+.todo-title {
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 2px;
+}
+.todo-desc {
+    font-size: 1rem;
+    color: #666;
+}
+
+.notion-home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 110px;
+}
+
+.notion-greeting {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 32px;
+}
+
+.notion-greeting-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #f3f2ef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    border: 1px solid #ececec;
+}
+
+.notion-greeting-text {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #222;
+    letter-spacing: -0.5px;
+}
+
+.notion-searchbar-wrap {
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 44px;
+}
+
+.notion-searchbar-box {
+    background: #fff;
+    border-radius: 18px;
+    border: 1.5px solid #ececec;
+    box-shadow: 0 4px 32px 0 rgba(60,60,60,0.06);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+}
+.notion-searchbar-input {
+    width: 100%;
+    font-size: 1.08rem;
+    padding: 36px 36px 24px 36px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #222;
+    border-radius: 18px 18px 0 0;
+    font-weight: 500;
+}
+.notion-searchbar-input::placeholder {
+    color: #b3b3b1;
+    font-weight: 400;
+}
+.notion-searchbar-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 28px 18px 28px;
+    border-top: 1px solid #f3f3f3;
+    gap: 0;
+}
+.notion-searchbar-icons {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+.notion-searchbar-icon,
+.notion-searchbar-arrow {
+    color: #b3b3b1;
+    font-size: 1.25rem;
+    opacity: 0.85;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    transition: background 0.12s;
+}
+.notion-searchbar-icon:hover,
+.notion-searchbar-arrow:hover {
+    background: #ececec;
+}
+.notion-searchbar-sources {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1rem;
+    color: #888;
+    background: #fff;
+    border-radius: 8px;
+    padding: 2px 10px 2px 2px;
+    border: 1px solid #ececec;
+}
+.notion-searchbar-sources img {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #ececec;
+}
+.notion-todo-section {
+    width: 100%;
+    max-width: 900px;
+    margin-top: 36px;
+}
+.notion-todo-title {
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 18px;
+    letter-spacing: 0.5px;
+}
+.notion-todo-list {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.notion-todo-card {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    padding: 22px 28px 18px 28px;
+    min-width: 210px;
+    max-width: 260px;
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border 0.12s;
+    position: relative;
+}
+.notion-todo-card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 2px;
+}
+.notion-todo-card-desc {
+    font-size: 1rem;
+    color: #666;
+}
+.todo-start-btn {
+    margin-top: 10px;
+    align-self: flex-start;
+    background: #f7f6f3;
+    color: #222;
+    border: 1px solid #ececec;
+    border-radius: 7px;
+    font-size: 0.98rem;
+    font-weight: 500;
+    padding: 6px 18px;
+    cursor: pointer;
+    transition: background 0.13s, border 0.13s;
+}
+.todo-start-btn:hover {
+    background: #ececec;
+}
+/* Tools & Project Page Styles (match Notion) */
+.notion-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 56px auto 0 auto;
+    max-width: 900px;
+    width: 100%;
+}
+.notion-section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 18px;
+}
+.notion-section-desc {
+    color: #666;
+    font-size: 1.08rem;
+    margin-bottom: 24px;
+}
+.notion-tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+.notion-project-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 18px;
+}
+.notion-project-desc {
+    color: #666;
+    font-size: 1.08rem;
+}
+.sidebar-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    vertical-align: middle;
+    color: #b3b3b1;
+}
+.tool-card.add-tool {
+    justify-content: center;
+    align-items: center;
+    background: #faf9f6;
+    border: 1.5px dashed #ececec;
+    color: #b3b3b1;
+    cursor: pointer;
+    min-height: 120px;
+}
+.tool-card.add-tool:hover {
+    border: 1.5px dashed #bdbdbd;
+    background: #f3f2ef;
+}
+.action-needed-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px 0 rgba(60,60,60,0.10);
+    border: 1px solid #ececec;
+    padding: 32px 32px 24px 32px;
+    margin-bottom: 32px;
+    margin-top: 10px;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    animation: fadeIn 0.7s;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-16px);}
+    to { opacity: 1; transform: none;}
+}
+.action-needed-title {
+    font-size: 1.18rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 14px;
+    letter-spacing: 0.2px;
+}
+.action-needed-message {
+    font-size: 1.08rem;
+    color: #222;
+    min-height: 48px;
+    margin-bottom: 18px;
+    line-height: 1.6;
+    word-break: break-word;
+}
+.action-needed-chat {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    margin-top: 6px;
+}
+.action-chat-input {
+    flex: 1;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 1rem;
+    background: #faf9f6;
+    color: #222;
+    outline: none;
+    transition: border 0.13s;
+}
+.action-chat-input:focus {
+    border: 1px solid #b3b3b1;
+    background: #fff;
+}
+.action-chat-send {
+    background: #f7f6f3;
+    color: #222;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: background 0.13s, border 0.13s;
+}
+.action-chat-send:hover {
+    background: #ececec;
+}
+.typewriter-cursor {
+    display: inline-block;
+    width: 1ch;
+    animation: blink 1s steps(1) infinite;
+    color: #888;
+}
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+.tesla-content-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    margin-top: 0;
+    min-height: 400px;
+}
+.tesla-main-col {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.tesla-tasks-card {
+    background: #f7f6f3;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px 0 rgba(60,60,60,0.04);
+    padding: 28px 28px 22px 28px;
+    min-width: 260px;
+    max-width: 320px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.tesla-tasks-title {
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: #37352f;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+}
+.tesla-tasks-list {
+    list-style: disc inside;
+    color: #444;
+    font-size: 1rem;
+    padding-left: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.tesla-tasks-list li {
+    margin-left: 16px;
+    line-height: 1.6;
+}
+@media (max-width: 900px) {
+    .tesla-content-row {
+        flex-direction: column;
+        gap: 24px;
+    }
+    .tesla-tasks-card {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+.tesla-page-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #222;
+    margin: 48px auto 32px auto;
+    max-width: 1200px;
+    width: 100%;
+    letter-spacing: -0.5px;
+    padding-left: 2px;
+}
+@media (max-width: 900px) {
+    .tesla-page-title {
+        margin: 32px 0 24px 0;
+        padding-left: 0;
+        text-align: center;
+    }
+    .tesla-content-row {
+        margin-top: 0;
+    }
+}
+.tesla-content-row {
+    margin-top: 0;
+}
+/* Tesla Chat Full Screen Styles */
+.tesla-chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: #fcfbf7;
+    position: relative;
+}
+
+.tesla-chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #ececec;
+    background: #fff;
+}
+
+.tesla-chat-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #37352f;
+}
+
+.tesla-chat-toggle {
+    background: #f7f6f3;
+    color: #888;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s;
+}
+
+.tesla-chat-toggle:hover {
+    background: #ececec;
+    color: #37352f;
+}
+
+.tesla-chat-content {
+    display: flex;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.tesla-chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    transition: margin-right 0.3s ease;
+}
+
+.tesla-chat-main.with-tasks {
+    margin-right: 320px;
+}
+
+.tesla-task-panel {
+    position: absolute;
+    top: 0;
+    right: -320px;
+    width: 320px;
+    height: 100%;
+    background: #fff;
+    border-left: 1px solid #ececec;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+}
+
+.tesla-task-panel.open {
+    right: 0;
+}
+
+.tesla-task-header {
+    padding: 20px;
+    border-bottom: 1px solid #ececec;
+    background: #fafafa;
+}
+
+.tesla-task-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #37352f;
+    margin-bottom: 8px;
+}
+
+.tesla-task-subtitle {
+    font-size: 14px;
+    color: #888;
+}
+
+.tesla-task-list {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.tesla-task-item {
+    background: #fcfbf7;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: border 0.2s;
+}
+
+.tesla-task-item:hover {
+    border: 1px solid #bdbdbd;
+}
+
+.tesla-task-item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #37352f;
+    margin-bottom: 6px;
+}
+
+.tesla-task-item-desc {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.tesla-task-item-priority {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.tesla-task-item-priority.high {
+    background: #fee;
+    color: #d73a49;
+}
+
+.tesla-task-item-priority.medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.tesla-task-item-priority.low {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Tesla Loading Animation Styles */
+.tesla-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fcfbf7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.tesla-loading-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tesla-loading-content {
+    text-align: center;
+    max-width: 500px;
+    padding: 40px;
+}
+
+.tesla-loading-icon {
+    width: 60px;
+    height: 60px;
+    border: 3px solid #ececec;
+    border-top: 3px solid #37352f;
+    border-radius: 50%;
+    margin: 0 auto 32px auto;
+    animation: tesla-spin 1s linear infinite;
+}
+
+.tesla-loading-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #37352f;
+    margin-bottom: 16px;
+}
+
+.tesla-loading-text {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    min-height: 22px;
+}
+
+.tesla-loading-dots {
+    display: inline-block;
+    animation: tesla-dots 1.5s linear infinite;
+}
+
+@keyframes tesla-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes tesla-dots {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+    100% { content: ''; }
+}
+
+/* Action Prompt Styles */
+.tesla-action-prompt {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    padding: 24px;
+    margin: 20px;
+    box-shadow: 0 4px 24px rgba(60,60,60,0.1);
+    animation: tesla-slide-up 0.6s ease-out;
+}
+
+.tesla-action-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #37352f;
+    margin-bottom: 12px;
+}
+
+.tesla-action-text {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.tesla-action-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.tesla-action-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #ececec;
+}
+
+.tesla-action-btn.primary {
+    background: #37352f;
+    color: #fff;
+    border: 1px solid #37352f;
+}
+
+.tesla-action-btn.primary:hover {
+    background: #2a2926;
+}
+
+.tesla-action-btn.secondary {
+    background: #f7f6f3;
+    color: #37352f;
+}
+
+.tesla-action-btn.secondary:hover {
+    background: #ececec;
+}
+
+@keyframes tesla-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tesla-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.tesla-chat-message {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.tesla-chat-message.user {
+    align-items: flex-end;
+}
+
+.tesla-chat-message.assistant {
+    align-items: flex-start;
+}
+
+.tesla-chat-bubble {
+    max-width: 80%;
+    padding: 16px 20px;
+    border-radius: 16px;
+    font-size: 15px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.tesla-chat-bubble.user {
+    background: #37352f;
+    color: #fff;
+}
+
+.tesla-chat-bubble.assistant {
+    background: #fff;
+    color: #37352f;
+    border: 1px solid #ececec;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.tesla-chat-timestamp {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+    padding: 0 4px;
+}
+
+.tesla-chat-input-container {
+    border-top: 1px solid #ececec;
+    background: #fff;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.tesla-chat-input-box {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    width: 100%;
+    max-width: 800px;
+    background: #fcfbf7;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    padding: 12px 16px;
+}
+
+.tesla-chat-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 15px;
+    color: #37352f;
+    resize: none;
+    font-family: inherit;
+    line-height: 1.5;
+    min-height: 24px;
+    max-height: 120px;
+}
+
+.tesla-chat-send {
+    background: #ececec;
+    color: #888;
+    border: none;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+.tesla-chat-send.active {
+    background: #37352f;
+    color: #fff;
+    cursor: pointer;
+}
+
+.tesla-chat-send:disabled {
+    cursor: not-allowed;
+}
+
+.tesla-chat-loading {
+    display: flex;
+    align-items: flex-start;
+}
+
+.tesla-chat-loading .tesla-chat-bubble {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tesla-typing-indicator {
+    display: flex;
+    gap: 4px;
+}
+
+.tesla-typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #bbb;
+    animation: tesla-bounce 1.4s ease-in-out infinite both;
+}
+
+.tesla-typing-dot:nth-child(2) {
+    animation-delay: 0.16s;
+}
+
+.tesla-typing-dot:nth-child(3) {
+    animation-delay: 0.32s;
+}
+
+@keyframes tesla-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+/* Hide the old Tesla content when chat is active */
+.tesla-page-title,
+.tesla-content-row {
+    display: none;
+}
+
+.tesla-page-title,
+.tesla-content-row {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Email Interface Styles */
+.tesla-email-interface {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    width: 600px;
+    max-width: 90vw;
+    max-height: 80vh;
+    z-index: 1000;
+    overflow: hidden;
+    animation: tesla-slide-up 0.3s ease-out;
+}
+
+.tesla-email-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e1e1e1;
+    background: #f8f8f7;
+}
+
+.tesla-email-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #37352f;
+}
+
+.tesla-email-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #9b9b9b;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.tesla-email-close:hover {
+    color: #37352f;
+}
+
+.tesla-email-content {
+    padding: 24px;
+}
+
+.tesla-email-field {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+}
+
+.tesla-email-field label {
+    font-weight: 600;
+    color: #6b6b6b;
+    min-width: 60px;
+    font-size: 14px;
+}
+
+.tesla-email-field span {
+    color: #37352f;
+    font-size: 14px;
+}
+
+.tesla-email-body {
+    background: #f8f8f7;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    line-height: 1.6;
+    font-size: 14px;
+    color: #37352f;
+}
+
+.tesla-email-body p {
+    margin-bottom: 12px;
+}
+
+.tesla-email-body p:last-child {
+    margin-bottom: 0;
+}
+
+.tesla-email-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.tesla-email-send {
+    background: #2383e2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tesla-email-send:hover:not(:disabled) {
+    background: #1a73d1;
+}
+
+.tesla-email-send:disabled {
+    background: #9b9b9b;
+    cursor: not-allowed;
+}
+
+/* File Notification Styles */
+.tesla-file-notification {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f0f9ff;
+    border: 1px solid #bae6ff;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    animation: tesla-slide-up 0.3s ease-out;
+}
+
+.tesla-file-icon {
+    font-size: 20px;
+    color: #0284c7;
+}
+
+.tesla-file-info {
+    flex: 1;
+}
+
+.tesla-file-name {
+    font-weight: 600;
+    color: #37352f;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.tesla-file-details {
+    font-size: 12px;
+    color: #6b6b6b;
+}
+
+.tesla-file-open {
+    background: #0284c7;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tesla-file-open:hover {
+    background: #0369a1;
+}
+
+/* Task Completion Styles */
+.tesla-task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+
+.tesla-task-item.completed {
+    background: #f0f9ff;
+    border-color: #bae6ff;
+    opacity: 0.8;
+}
+
+.tesla-task-item.completed .tesla-task-content {
+    text-decoration: line-through;
+    color: #6b6b6b;
+}
+
+.tesla-task-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #e1e1e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.2s;
+}
+
+.tesla-task-item.completed .tesla-task-checkbox {
+    background: #0284c7;
+    border-color: #0284c7;
+    color: white;
+}
+
+.tesla-task-content {
+    flex: 1;
+    transition: all 0.2s;
+}
+
+.tesla-task-item-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #37352f;
+    margin-bottom: 6px;
+}
+
+.tesla-task-item-desc {
+    font-size: 13px;
+    color: #6b6b6b;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.tesla-task-item-priority {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.tesla-task-item-priority.high {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.tesla-task-item-priority.medium {
+    background: #fef3c7;
+    color: #d97706;
+    border: 1px solid #fed7aa;
+}
+
+.tesla-task-item-priority.low {
+    background: #f0f9ff;
+    color: #0284c7;
+    border: 1px solid #bae6ff;
+}
+
+/* Email Draft Box (Inline Chat Component) */
+.tesla-email-draft-box {
+    background: #f8f8f7;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    margin-top: 12px;
+    overflow: hidden;
+    animation: tesla-slide-up 0.3s ease-out;
+}
+
+.tesla-email-draft-header {
+    background: #fff;
+    border-bottom: 1px solid #e1e1e1;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tesla-email-draft-icon {
+    font-size: 16px;
+}
+
+.tesla-email-draft-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #37352f;
+}
+
+.tesla-email-draft-content {
+    padding: 16px;
+}
+
+.tesla-email-draft-field {
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #37352f;
+}
+
+.tesla-email-draft-field strong {
+    color: #6b6b6b;
+    margin-right: 8px;
+}
+
+.tesla-email-draft-body {
+    background: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #37352f;
+}
+
+.tesla-email-draft-body p {
+    margin-bottom: 8px;
+}
+
+.tesla-email-draft-body p:last-child {
+    margin-bottom: 0;
+}
+
+.tesla-email-draft-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+.tesla-email-draft-send {
+    background: #2383e2;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tesla-email-draft-send:hover:not(:disabled) {
+    background: #1a73d1;
+}
+
+.tesla-email-draft-send:disabled {
+    background: #9b9b9b;
+    cursor: not-allowed;
+}
+
+/* File Received Box (Inline Chat Component) */
+.tesla-file-received-box {
+    background: #f0f9ff;
+    border: 1px solid #bae6ff;
+    border-radius: 8px;
+    margin-top: 12px;
+    overflow: hidden;
+    animation: tesla-slide-up 0.3s ease-out;
+}
+
+.tesla-file-received-header {
+    background: #e0f2fe;
+    border-bottom: 1px solid #bae6ff;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tesla-file-received-icon {
+    font-size: 16px;
+    color: #0284c7;
+}
+
+.tesla-file-received-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0284c7;
+}
+
+.tesla-file-received-content {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tesla-file-received-info {
+    flex: 1;
+}
+
+.tesla-file-received-name {
+    font-weight: 600;
+    color: #37352f;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.tesla-file-received-details {
+    font-size: 12px;
+    color: #6b6b6b;
+}
+
+.tesla-file-received-open {
+    background: #0284c7;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tesla-file-received-open:hover {
+    background: #0369a1;
+}
+
+.tesla-file-received-status {
+    background: #f0f9ff;
+    color: #0284c7;
+    border: 1px solid #bae6ff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* PowerPoint Suggestion Box (Inline Chat Component) */
+.tesla-powerpoint-suggestion-box {
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 8px;
+    margin-top: 12px;
+    overflow: hidden;
+    animation: tesla-slide-up 0.3s ease-out;
+}
+
+.tesla-powerpoint-suggestion-header {
+    background: #fbbf24;
+    border-bottom: 1px solid #fcd34d;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tesla-powerpoint-suggestion-icon {
+    font-size: 16px;
+    color: #92400e;
+}
+
+.tesla-powerpoint-suggestion-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #92400e;
+}
+
+.tesla-powerpoint-suggestion-content {
+    padding: 16px;
+}
+
+.tesla-powerpoint-suggestion-field {
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #92400e;
+    font-weight: 600;
+}
+
+.tesla-powerpoint-suggestion-body {
+    background: #fff;
+    border: 1px solid #fcd34d;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #37352f;
+}
+
+.tesla-powerpoint-suggestion-body p {
+    margin-bottom: 8px;
+    position: relative;
+    padding-left: 16px;
+}
+
+.tesla-powerpoint-suggestion-body p:before {
+    content: '•';
+    color: #92400e;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.tesla-powerpoint-suggestion-body p:last-child {
+    margin-bottom: 0;
+}
+
+.tesla-powerpoint-suggestion-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+.tesla-powerpoint-suggestion-apply {
+    background: #d97706;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tesla-powerpoint-suggestion-apply:hover {
+    background: #b45309;
+} 
