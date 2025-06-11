@@ -1,6 +1,16 @@
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
 
+// Add electron-reload for development hot reloading
+try {
+  require('electron-reload')(__dirname, {
+    electron: path.join(__dirname, '..', 'node_modules', '.bin', 'electron'),
+    hardResetMethod: 'exit'
+  });
+} catch (_) { 
+  // electron-reload not installed in production
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
@@ -17,6 +27,11 @@ function createWindow() {
   })
 
   win.loadFile('index.html')
+  
+  // Open DevTools in development (optional)
+  if (process.env.NODE_ENV === 'development') {
+    win.webContents.openDevTools()
+  }
 }
 
 app.whenReady().then(() => {

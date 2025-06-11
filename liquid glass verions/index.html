@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notion-like App</title>
+    
+    <!-- Add React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- External CSS file -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main App Container with Glass Effect -->
+    <div class="app-container">
+        <div class="sidebar glass-panel">
+            <!-- User Profile -->
+            <div class="profile">
+                <div class="avatar">RS</div>
+                <div class="profile-info">
+                    <div class="profile-name">Rohit Shetty</div>
+                    <div class="profile-status">Online</div>
+                </div>
+            </div>
+            <div class="sidebar-divider"></div>
+            <!-- Central Hub -->
+            <div class="sidebar-section">
+                <div class="nav-item active" id="home-tab">
+                    <span class="sidebar-icon" aria-label="Home">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V9h6v12"/></svg>
+                    </span>
+                    Home
+                </div>
+                <div class="nav-item" id="tools-tab">
+                    <span class="sidebar-icon" aria-label="Tools">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.82-.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 15.4 9a1.65 1.65 0 0 0 1.82.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 15z"/></svg>
+                    </span>
+                    Tools
+                </div>
+            </div>
+            <div class="sidebar-divider"></div>
+            <!-- Projects -->
+            <div class="sidebar-section">
+                <div class="section-label">PROJECTS</div>
+                <div class="project-list">
+                    <div class="project-item">
+                        <span class="project-icon">📁</span>
+                        Tesla Earnings Project
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="page-content" id="main-content-home">
+                <div class="notion-home">
+                    <div class="notion-greeting">
+                        <div class="notion-greeting-text">Welcome to your workspace</div>
+                    </div>
+                    <div class="notion-searchbar-wrap">
+                        <div class="notion-searchbar-box">
+                            <input class="notion-searchbar-input" type="text" placeholder="Ask or find anything from your workspace..." />
+                            <div class="notion-searchbar-bottom">
+                                <div style="flex:1"></div>
+                                <div class="notion-searchbar-icons">
+                                    <span class="notion-searchbar-icon">📎</span>
+                                    <span class="notion-searchbar-icon">@</span>
+                                    <span class="notion-searchbar-arrow">↑</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notion-todo-section">
+                        <div class="notion-todo-title">To do</div>
+                        <div class="notion-todo-list">
+                            <div class="notion-todo-card priority-glow">
+                                <div class="notion-todo-card-title">Slide Updates - Manager Jeff</div>
+                                <div class="notion-todo-card-desc">Refactor slides on Tesla project</div>
+                                <button class="todo-start-btn">Start</button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page-content" id="main-content-tools" style="display:none;">
+                <div class="notion-section">
+                    <div class="notion-section-title">Tools <span style="background: #f3f3f3; color: #888; font-size: 13px; font-weight: 600; border-radius: 8px; padding: 2px 8px; margin-left: 4px;">BETA</span></div>
+                    <div class="notion-section-desc">Connect your favorite tools so this app can access their information, based on what you're authorized to view.</div>
+                    <div class="notion-tool-grid">
+                        <div class="tool-card" data-tool="PowerPoint">
+                            <div class="tool-icon" style="background:#f3f3f3;"><img src="https://img.icons8.com/color/48/000000/microsoft-powerpoint-2019--v1.png" width="36" height="36"/></div>
+                            <div class="tool-name">PowerPoint</div>
+                            <button class="connect-btn">Connect</button>
+                        </div>
+                        <div class="tool-card" data-tool="Slack">
+                            <div class="tool-icon" style="background:#f3f3f3;"><img src="https://img.icons8.com/color/48/000000/slack-new.png" width="36" height="36"/></div>
+                            <div class="tool-name">Slack</div>
+                            <button class="connect-btn">Connect</button>
+                        </div>
+                        <div class="tool-card" data-tool="Gmail">
+                            <div class="tool-icon" style="background:#f3f3f3;"><img src="https://img.icons8.com/color/48/000000/gmail-new.png" width="36" height="36"/></div>
+                            <div class="tool-name">Gmail</div>
+                            <button class="connect-btn">Connect</button>
+                        </div>
+                        <div class="tool-card" data-tool="Zoom">
+                            <div class="tool-icon" style="background:#f3f3f3;"><img src="https://img.icons8.com/color/48/000000/zoom.png" width="36" height="36"/></div>
+                            <div class="tool-name">Zoom</div>
+                            <button class="connect-btn">Connect</button>
+                        </div>
+                        <div class="tool-card add-tool">
+                            <span style="font-size: 2.2rem; color: #b3b3b1; margin: 0 auto;">+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page-content" id="main-content-tesla" style="display:none;">
+                <div id="tesla-react-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- React Components -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Tesla Chat Component
+        function TeslaChat() {
+            const [isInitialLoading, setIsInitialLoading] = useState(true);
+            const [loadingText, setLoadingText] = useState('');
+            const [showActionPrompt, setShowActionPrompt] = useState(false);
+            const [messages, setMessages] = useState([]);
+            const [inputText, setInputText] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const [showTasks, setShowTasks] = useState(false);
+            const [completedTasks, setCompletedTasks] = useState(new Set());
+            const [emailStep, setEmailStep] = useState('draft'); // draft, sending, sent, received
+            const messagesEndRef = useRef(null);
+            const inputRef = useRef(null);
+
+            // Loading sequence
+            useEffect(() => {
+                const loadingSequence = [
+                    { text: "Analyzing your latest Zoom meeting", duration: 200 },
+                    { text: "Processing conversation with your manager", duration: 200 },
+                    { text: "Extracting action items and deadlines", duration: 200 },
+                    { text: "Prioritizing tasks based on urgency", duration: 200 },
+                    { text: "Preparing your personalized task list", duration: 150 }
+                ];
+
+                let currentStep = 0;
+                
+                const runStep = () => {
+                    if (currentStep < loadingSequence.length) {
+                        setLoadingText(loadingSequence[currentStep].text);
+                        setTimeout(() => {
+                            currentStep++;
+                            runStep();
+                        }, loadingSequence[currentStep].duration);
+                    } else {
+                        // Loading complete, show action prompt
+                        setTimeout(() => {
+                            setIsInitialLoading(false);
+                            setShowActionPrompt(true);
+                            
+                            // Add initial AI message after action prompt
+                            setTimeout(() => {
+                                setMessages([{
+                                    id: 1,
+                                    text: "Hi Rohit! I've analyzed your meeting with your manager. Based on the discussion, I've identified several action items for your Tesla earnings presentation.",
+                                    sender: 'assistant',
+                                    timestamp: new Date()
+                                }]);
+                            }, 1000);
+                        }, 500);
+                    }
+                };
+
+                runStep();
+            }, []);
+
+            const handleActionResponse = (action) => {
+                setShowActionPrompt(false);
+                
+                if (action === 'yes') {
+                    // Show email draft in chat
+                    setTimeout(() => {
+                        const emailDraftMessage = {
+                            id: 2,
+                            text: "I've drafted an email to Sarah Chen requesting the Q3 financial sheet:",
+                            sender: 'assistant',
+                            timestamp: new Date(),
+                            hasEmailDraft: true,
+                            emailData: {
+                                to: 'sarah.chen@company.com',
+                                subject: 'Request for Q3 Financial Sheet - Tesla Earnings Presentation',
+                                body: `Hi Sarah,
+
+I hope this email finds you well. I'm currently working on the Tesla earnings presentation for our upcoming stakeholder meeting, and I need the latest Q3 financial sheet to ensure our projections are accurate.
+
+Could you please send me the most recent Q3 financial data when you have a moment? This will help me finalize the revenue projections section.
+
+Thanks in advance for your help!
+
+Best regards,
+Rohit`
+                            }
+                        };
+                        setMessages(prev => [...prev, emailDraftMessage]);
+                    }, 1000);
+                } else {
+                    const skipMessage = {
+                        id: 2,
+                        text: "No problem! I'll keep this task in your list for later. Is there anything else from your meeting that you'd like to work on right now?",
+                        sender: 'assistant',
+                        timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, skipMessage]);
+                }
+            };
+
+            const handleSendEmail = () => {
+                setEmailStep('sending');
+                
+                // Add message about sending
+                const sendingMessage = {
+                    id: messages.length + 1,
+                    text: "Sending email to Sarah Chen...",
+                    sender: 'assistant',
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, sendingMessage]);
+                
+                setTimeout(() => {
+                    setEmailStep('sent');
+                    
+                    // Mark first task as completed
+                    setCompletedTasks(prev => new Set([...prev, 1]));
+                    
+                    const sentMessage = {
+                        id: messages.length + 2,
+                        text: "✅ Email sent successfully! I've marked 'Request Q3 Financial Sheet' as completed. Sarah should receive it shortly and will likely respond with the financial data.",
+                        sender: 'assistant',
+                        timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, sentMessage]);
+                    
+                    // Wait 5 seconds then show received file
+                    setTimeout(() => {
+                        setEmailStep('received');
+                        
+                        const receivedMessage = {
+                            id: messages.length + 3,
+                            text: "📧 Great news! Sarah Chen just replied with the Q3 financial sheet:",
+                            sender: 'assistant',
+                            timestamp: new Date(),
+                            hasReceivedFile: true,
+                            fileData: {
+                                name: 'Tesla_Q3_Financial_Sheet.xlsx',
+                                sender: 'Sarah Chen',
+                                size: '2.3 MB'
+                            }
+                        };
+                        setMessages(prev => [...prev, receivedMessage]);
+                        
+                        // If the received file is Tesla_Q3_Financial_Sheet.xlsx, update its status after 0.2s
+                        if (receivedMessage.fileData && receivedMessage.fileData.name === 'Tesla_Q3_Financial_Sheet.xlsx') {
+                            setTimeout(() => {
+                                setMessages(prevMsgs => prevMsgs.map(msg =>
+                                    msg.fileData && msg.fileData.name === 'Tesla_Q3_Financial_Sheet.xlsx'
+                                        ? { ...msg, fileStatus: 'View' }
+                                        : msg
+                                ));
+                            }, 200);
+                        }
+                        
+                        // After 2 seconds, show context addition and PowerPoint suggestion
+                        setTimeout(() => {
+                            const contextMessage = {
+                                id: messages.length + 4,
+                                text: "✅ I've analyzed the financial data and added it to my context. Now I can help you update your Tesla presentation with the latest Q3 numbers.",
+                                sender: 'assistant',
+                                timestamp: new Date()
+                            };
+                            setMessages(prev => [...prev, contextMessage]);
+                            
+                            // Show PowerPoint suggestion
+                            setTimeout(() => {
+                                const powerpointMessage = {
+                                    id: messages.length + 5,
+                                    text: "I can help you update your PowerPoint presentation with the new data:",
+                                    sender: 'assistant',
+                                    timestamp: new Date(),
+                                    hasPowerpointSuggestion: true,
+                                    powerpointData: {
+                                        fileName: 'Tesla_Earnings_Presentation.pptx',
+                                        suggestedEdits: [
+                                            'Update Q3 revenue figures on slide 3',
+                                            'Refresh profit margin charts on slide 7',
+                                            'Add new quarterly comparison on slide 9',
+                                            'Update executive summary with key insights'
+                                        ]
+                                    }
+                                };
+                                setMessages(prev => [...prev, powerpointMessage]);
+                            }, 1500);
+                        }, 2000);
+                    }, 5000);
+                }, 2000);
+            };
+
+            const handleOpenPowerpoint = () => {
+                // Mark second task as completed
+                setCompletedTasks(prev => new Set([...prev, 2]));
+                
+                const openingMessage = {
+                    id: messages.length + 1,
+                    text: "🎯 Opening Tesla_Earnings_Presentation.pptx and applying the revenue updates... I've marked 'Update Revenue Projections' as completed.",
+                    sender: 'assistant',
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, openingMessage]);
+                
+                // After 3 seconds, show completion
+                setTimeout(() => {
+                    const completedMessage = {
+                        id: messages.length + 2,
+                        text: "✅ PowerPoint presentation updated successfully! The latest Q3 financial data has been integrated into slides 3, 7, and 9. Your revenue projections now reflect the most current numbers from Sarah's data.",
+                        sender: 'assistant',
+                        timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, completedMessage]);
+                }, 3000);
+            };
+
+            const handleToggleChat = () => {
+                setShowTasks(!showTasks);
+            };
+
+            const tasks = [
+                {
+                    id: 1,
+                    title: "Request Q3 Financial Sheet",
+                    description: "Email Sarah Chen for latest Q3 financial data for Tesla presentation",
+                    priority: "high"
+                },
+                {
+                    id: 2,
+                    title: "Update Revenue Projections",
+                    description: "Incorporate latest earnings data and adjust revenue projections based on manager feedback",
+                    priority: "high"
+                },
+                {
+                    id: 3,
+                    title: "Review Competitor Analysis",
+                    description: "Compare Tesla's performance against traditional automakers and EV competitors",
+                    priority: "medium"
+                },
+                {
+                    id: 4,
+                    title: "Prepare Executive Summary",
+                    description: "Create 1-page summary highlighting key insights for stakeholder meeting",
+                    priority: "medium"
+                },
+                {
+                    id: 5,
+                    title: "Schedule Follow-up Meeting",
+                    description: "Book time with manager to review updated presentation before final delivery",
+                    priority: "low"
+                }
+            ];
+
+            const scrollToBottom = () => {
+                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            };
+
+            useEffect(() => {
+                scrollToBottom();
+            }, [messages]);
+
+            const formatTime = (date) => {
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            };
+
+            const handleSendMessage = async () => {
+                if (!inputText.trim() || isLoading) return;
+
+                const newMessage = {
+                    id: messages.length + 1,
+                    text: inputText,
+                    sender: 'user',
+                    timestamp: new Date()
+                };
+
+                setMessages(prev => [...prev, newMessage]);
+                setInputText('');
+                setIsLoading(true);
+
+                // Simulate AI response
+                setTimeout(() => {
+                    const responses = [
+                        "I understand. Let me help you with those presentation updates. What specific changes did your manager request?",
+                        "That sounds important. Can you tell me more about what needs to be updated in the presentation?",
+                        "I'm here to help! What aspects of the Tesla earnings presentation need revision?",
+                        "Got it. Let's work on those updates together. What feedback did you receive about the presentation?"
+                    ];
+                    
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    
+                    const aiResponse = {
+                        id: messages.length + 2,
+                        text: randomResponse,
+                        sender: 'assistant',
+                        timestamp: new Date()
+                    };
+                    
+                    setMessages(prev => [...prev, aiResponse]);
+                    setIsLoading(false);
+                }, 1500);
+            };
+
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                }
+            };
+
+            const handleInputChange = (e) => {
+                setInputText(e.target.value);
+                // Auto-resize textarea
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+            };
+
+            // Show loading overlay
+            if (isInitialLoading) {
+                return (
+                    <div className="tesla-chat-container">
+                        <div className="tesla-chat-header">
+                            <div className="tesla-chat-title">Tesla Earnings Project</div>
+                            <button className="tesla-chat-toggle" onClick={handleToggleChat}>
+                                📋
+                            </button>
+                        </div>
+                        <div className="tesla-chat-content">
+                            <div className="tesla-loading-overlay">
+                                <div className="tesla-loading-content">
+                                    <div className="tesla-loading-icon"></div>
+                                    <div className="tesla-loading-title">AI Assistant</div>
+                                    <div className="tesla-loading-text">
+                                        {loadingText}
+                                        <span className="tesla-loading-dots"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="tesla-chat-container">
+                    <div className="tesla-chat-header">
+                        <div className="tesla-chat-title">Tesla Earnings Project</div>
+                        <button className="tesla-chat-toggle" onClick={handleToggleChat}>
+                            📋
+                        </button>
+                    </div>
+                    <div className="tesla-chat-content">
+                        <div className={`tesla-chat-main ${showTasks ? 'with-tasks' : ''}`}>
+                            {showActionPrompt && (
+                                <div className="tesla-action-prompt">
+                                    <div className="tesla-action-title">🎯 Priority Action Identified</div>
+                                    <div className="tesla-action-text">
+                                        Your manager mentioned you need the Q3 financial sheet from Sarah Chen for your Tesla presentation. This seems to be blocking your progress.
+                                        <br/><br/>
+                                        Would you like me to draft an email to Sarah requesting this information?
+                                    </div>
+                                    <div className="tesla-action-buttons">
+                                        <button 
+                                            className="tesla-action-btn primary"
+                                            onClick={() => handleActionResponse('yes')}
+                                        >
+                                            Yes, draft email
+                                        </button>
+                                        <button 
+                                            className="tesla-action-btn secondary"
+                                            onClick={() => handleActionResponse('no')}
+                                        >
+                                            Not right now
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div className="tesla-chat-messages">
+                                {messages.map((message) => (
+                                    <div key={message.id} className={`tesla-chat-message ${message.sender}`}>
+                                        <div className={`tesla-chat-bubble ${message.sender}`}>
+                                            {message.text}
+                                        </div>
+                                        
+                                        {/* Email Draft Component */}
+                                        {message.hasEmailDraft && (
+                                            <div className="tesla-email-draft-box">
+                                                <div className="tesla-email-draft-header">
+                                                    <span className="tesla-email-draft-icon">📧</span>
+                                                    <span className="tesla-email-draft-title">Email Draft</span>
+                                                </div>
+                                                <div className="tesla-email-draft-content">
+                                                    <div className="tesla-email-draft-field">
+                                                        <strong>To:</strong> {message.emailData.to}
+                                                    </div>
+                                                    <div className="tesla-email-draft-field">
+                                                        <strong>Subject:</strong> {message.emailData.subject}
+                                                    </div>
+                                                    <div className="tesla-email-draft-body">
+                                                        {message.emailData.body.split('\n').map((line, index) => (
+                                                            <p key={index}>{line}</p>
+                                                        ))}
+                                                    </div>
+                                                    <div className="tesla-email-draft-actions">
+                                                        <button 
+                                                            className="tesla-email-draft-send"
+                                                            onClick={handleSendEmail}
+                                                            disabled={emailStep !== 'draft'}
+                                                        >
+                                                            {emailStep === 'draft' ? 'Send Email' : 
+                                                             emailStep === 'sending' ? 'Sending...' : 
+                                                             'Email Sent ✓'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        {/* Received File Component */}
+                                        {message.hasReceivedFile && (
+                                            <div className="tesla-file-received-box">
+                                                <div className="tesla-file-received-header">
+                                                    <span className="tesla-file-received-icon">📎</span>
+                                                    <span className="tesla-file-received-title">File Received</span>
+                                                </div>
+                                                <div className="tesla-file-received-content">
+                                                    <div className="tesla-file-received-info">
+                                                        <div className="tesla-file-received-name">{message.fileData.name}</div>
+                                                        <div className="tesla-file-received-details">
+                                                            From: {message.fileData.sender} • {message.fileData.size}
+                                                        </div>
+                                                    </div>
+                                                    <div className="tesla-file-received-status">
+                                                        {message.fileStatus || 'Processing...'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        {/* PowerPoint Suggestion Component */}
+                                        {message.hasPowerpointSuggestion && (
+                                            <div className="tesla-powerpoint-suggestion-box">
+                                                <div className="tesla-powerpoint-suggestion-header">
+                                                    <span className="tesla-powerpoint-suggestion-icon">📊</span>
+                                                    <span className="tesla-powerpoint-suggestion-title">PowerPoint Suggestion</span>
+                                                </div>
+                                                <div className="tesla-powerpoint-suggestion-content">
+                                                    <div className="tesla-powerpoint-suggestion-field">
+                                                        <strong>Suggested Edits:</strong>
+                                                    </div>
+                                                    <div className="tesla-powerpoint-suggestion-body">
+                                                        {message.powerpointData.suggestedEdits.map((edit, index) => (
+                                                            <p key={index}>{edit}</p>
+                                                        ))}
+                                                    </div>
+                                                    <div className="tesla-powerpoint-suggestion-actions">
+                                                        <button 
+                                                            className="tesla-powerpoint-suggestion-apply"
+                                                            onClick={handleOpenPowerpoint}
+                                                        >
+                                                            Apply Suggestion
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <div className="tesla-chat-timestamp">
+                                            {formatTime(message.timestamp)}
+                                        </div>
+                                    </div>
+                                ))}
+                                
+                                {isLoading && (
+                                    <div className="tesla-chat-loading">
+                                        <div className="tesla-chat-bubble assistant">
+                                            <div className="tesla-typing-indicator">
+                                                <div className="tesla-typing-dot"></div>
+                                                <div className="tesla-typing-dot"></div>
+                                                <div className="tesla-typing-dot"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <div ref={messagesEndRef} />
+                            </div>
+
+                            <div className="tesla-chat-input-container">
+                                <div className="tesla-chat-input-box">
+                                    <textarea
+                                        ref={inputRef}
+                                        value={inputText}
+                                        onChange={handleInputChange}
+                                        onKeyPress={handleKeyPress}
+                                        placeholder="Message about your Tesla project..."
+                                        className="tesla-chat-input"
+                                        rows={1}
+                                    />
+                                    <button
+                                        onClick={handleSendMessage}
+                                        disabled={!inputText.trim() || isLoading}
+                                        className={`tesla-chat-send ${inputText.trim() && !isLoading ? 'active' : ''}`}
+                                    >
+                                        ↑
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`tesla-task-panel ${showTasks ? 'open' : ''}`}>
+                            <div className="tesla-task-header">
+                                <div className="tesla-task-title">Project Tasks</div>
+                                <div className="tesla-task-subtitle">Tesla Earnings Presentation</div>
+                            </div>
+                            <div className="tesla-task-list">
+                                {tasks.map((task) => (
+                                    <div key={task.id} className={`tesla-task-item ${completedTasks.has(task.id) ? 'completed' : ''}`}>
+                                        <div className="tesla-task-checkbox">
+                                            {completedTasks.has(task.id) ? '✓' : '○'}
+                                        </div>
+                                        <div className="tesla-task-content">
+                                            <div className="tesla-task-item-title">{task.title}</div>
+                                            <div className="tesla-task-item-desc">{task.description}</div>
+                                            <div className={`tesla-task-item-priority ${task.priority}`}>
+                                                {task.priority.toUpperCase()} PRIORITY
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Global variable to track if React component is mounted
+        let teslaReactMounted = false;
+
+        // Function to mount React component
+        function mountTeslaChat() {
+            if (!teslaReactMounted) {
+                const container = document.getElementById('tesla-react-container');
+                if (container) {
+                    ReactDOM.render(<TeslaChat />, container);
+                    teslaReactMounted = true;
+                }
+            }
+        }
+
+        // Function to unmount React component
+        function unmountTeslaChat() {
+            if (teslaReactMounted) {
+                const container = document.getElementById('tesla-react-container');
+                if (container) {
+                    ReactDOM.unmountComponentAtNode(container);
+                    teslaReactMounted = false;
+                }
+            }
+        }
+    </script>
+
+    <!-- Existing JavaScript (keep all existing functionality) -->
+    <script>
+        // Glass UI Enhancements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scroll effect for header
+            let lastScrollY = 0;
+            const windowControls = document.querySelector('.window-controls');
+            
+            function handleScroll() {
+                const currentScrollY = window.scrollY;
+                
+                if (currentScrollY > 50) {
+                    windowControls.classList.add('scrolled');
+                } else {
+                    windowControls.classList.remove('scrolled');
+                }
+                
+                lastScrollY = currentScrollY;
+            }
+            
+            window.addEventListener('scroll', handleScroll, { passive: true });
+            
+            // Add glass panel animation on load
+            const glassPanels = document.querySelectorAll('.glass-panel');
+            glassPanels.forEach((panel, index) => {
+                setTimeout(() => {
+                    panel.style.opacity = '1';
+                    panel.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+            
+            // Enhanced card hover effects
+            const cards = document.querySelectorAll('.tool-card, .notion-todo-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+            
+            // Floating animation for glass elements
+            const floatingElements = document.querySelectorAll('.avatar, .notion-greeting-icon');
+            floatingElements.forEach(element => {
+                element.style.animation = 'float 6s ease-in-out infinite';
+            });
+        });
+
+        // Home tab click
+        document.getElementById('home-tab').addEventListener('click', function() {
+            document.querySelectorAll('.nav-item, .project-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('main-content-home').style.display = '';
+            document.getElementById('main-content-tools').style.display = 'none';
+            document.getElementById('main-content-tesla').style.display = 'none';
+            unmountTeslaChat();
+        });
+
+        // Tools tab click
+        document.getElementById('tools-tab').addEventListener('click', function() {
+            document.querySelectorAll('.nav-item, .project-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('main-content-home').style.display = 'none';
+            document.getElementById('main-content-tools').style.display = '';
+            document.getElementById('main-content-tesla').style.display = 'none';
+            unmountTeslaChat();
+        });
+
+        // Project click - Updated to use React
+        document.querySelectorAll('.project-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item, .project-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('main-content-home').style.display = 'none';
+                document.getElementById('main-content-tools').style.display = 'none';
+                document.getElementById('main-content-tesla').style.display = '';
+                
+                // Mount React component with a small delay
+                setTimeout(() => {
+                    mountTeslaChat();
+                }, 100);
+            });
+        });
+
+        // Keep all existing functionality for other parts
+        document.querySelectorAll('.connect-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!btn.classList.contains('connected')) {
+                    btn.classList.add('connected');
+                    btn.textContent = '✓ Connected';
+                } else {
+                    btn.classList.remove('connected');
+                    btn.textContent = 'Connect';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

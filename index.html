@@ -32,7 +32,7 @@
             </div>
             <div class="nav-item" id="tools-tab">
                 <span class="sidebar-icon" aria-label="Tools">
-                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.82-.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 15.4 9a1.65 1.65 0 0 0 1.82.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 15z"/></svg>
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.82-.33l-.06-.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 15.4 9a1.65 1.65 0 0 0 1.82.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 15z"/></svg>
                 </span>
                 Tools
             </div>
@@ -53,6 +53,7 @@
         <div class="page-content" id="main-content-home">
             <div class="notion-home">
                 <div class="notion-greeting">
+                    <img src="cursor.png" alt="User" class="notion-greeting-icon" />
                     <div class="notion-greeting-text">Welcome to your workspace</div>
                 </div>
                 <div class="notion-searchbar-wrap">
@@ -72,21 +73,12 @@
                     <div class="notion-todo-title">To do</div>
                     <div class="notion-todo-list">
                         <div class="notion-todo-card">
+                            <div class="notion-todo-card-new">new</div>
                             <div class="notion-todo-card-title">Slide Updates - Manager Jeff</div>
                             <div class="notion-todo-card-desc">Refactor slides on Tesla project</div>
-                            <button class="todo-start-btn">Start</button>
+                            <button class="todo-start-btn" onclick="document.querySelector('.project-item').click()">Start</button>
                         </div>
-                        <div class="notion-todo-card">
-                            <div class="notion-todo-card-title">Meeting</div>
-                            <div class="notion-todo-card-desc">Meet with manager at 2pm</div>
-                            <button class="todo-start-btn">Start</button>
-                        </div>
-                       
-                        <div class="notion-todo-card">
-                            <div class="notion-todo-card-title">Email</div>
-                            <div class="notion-todo-card-desc">Respond to X, Y, Z emails</div>
-                            <button class="todo-start-btn">Start</button>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -135,6 +127,8 @@
         function TeslaChat() {
             const [isInitialLoading, setIsInitialLoading] = useState(true);
             const [loadingText, setLoadingText] = useState('');
+            const [showProjectUpdatePopup, setShowProjectUpdatePopup] = useState(false);
+            const [showMeetingNotesModal, setShowMeetingNotesModal] = useState(false);
             const [showActionPrompt, setShowActionPrompt] = useState(false);
             const [messages, setMessages] = useState([]);
             const [inputText, setInputText] = useState('');
@@ -142,17 +136,82 @@
             const [showTasks, setShowTasks] = useState(false);
             const [completedTasks, setCompletedTasks] = useState(new Set());
             const [emailStep, setEmailStep] = useState('draft'); // draft, sending, sent, received
+            
+            // View toggle state
+            const [currentView, setCurrentView] = useState('chat'); // 'chat' or 'workspace'
+            
+            // Animation states
+            const [typedGreeting, setTypedGreeting] = useState('');
+            const [showUserIcon, setShowUserIcon] = useState(false);
+            const [showMeetingCard, setShowMeetingCard] = useState(false);
+            const [showTasksTitle, setShowTasksTitle] = useState(false);
+            const [visibleTasks, setVisibleTasks] = useState([]);
+            const [showStartButton, setShowStartButton] = useState(false);
+            
             const messagesEndRef = useRef(null);
             const inputRef = useRef(null);
+
+            const fullGreeting = "Hey Rohit, looks like your meeting with Manager Jeff went well!";
+            const greetingWords = fullGreeting.split(' ');
+
+            // Typing animation effect - word by word
+            useEffect(() => {
+                if (showProjectUpdatePopup) {
+                    // Show user icon first
+                    if (!showUserIcon) {
+                        setTimeout(() => setShowUserIcon(true), 200);
+                        return;
+                    }
+                    
+                    // Only start typing after icon is visible
+                    if (showUserIcon && typedGreeting !== fullGreeting) {
+                        const currentWordCount = typedGreeting.split(' ').length;
+                        if (currentWordCount <= greetingWords.length) {
+                            const timer = setTimeout(() => {
+                                const nextWords = greetingWords.slice(0, currentWordCount).join(' ');
+                                if (nextWords !== typedGreeting) {
+                                    setTypedGreeting(nextWords);
+                                } else if (currentWordCount < greetingWords.length) {
+                                    setTypedGreeting(greetingWords.slice(0, currentWordCount + 1).join(' '));
+                                }
+                            }, currentWordCount === 0 ? 800 : 80); // Longer delay before first word
+                            return () => clearTimeout(timer);
+                        }
+                    }
+                }
+            }, [showProjectUpdatePopup, typedGreeting, greetingWords, showUserIcon]);
+
+            // Staggered animations after typing is complete
+            useEffect(() => {
+                if (typedGreeting === fullGreeting) {
+                    // Show meeting card after greeting is complete (longer pause)
+                    setTimeout(() => setShowMeetingCard(true), 500);
+                    
+                    // Show tasks title
+                    setTimeout(() => setShowTasksTitle(true), 1700);
+                    
+                    // Show tasks one by one
+                    setTimeout(() => {
+                        tasks.forEach((task, index) => {
+                            setTimeout(() => {
+                                setVisibleTasks(prev => [...prev, task.id]);
+                            }, index * 200);
+                        });
+                    }, 2200);
+                    
+                    // Show start button last
+                    setTimeout(() => setShowStartButton(true), 2200 + (tasks.length * 200) + 300);
+                }
+            }, [typedGreeting, fullGreeting]);
 
             // Loading sequence
             useEffect(() => {
                 const loadingSequence = [
-                    { text: "Analyzing your latest Zoom meeting", duration: 2000 },
-                    { text: "Processing conversation with your manager", duration: 2000 },
-                    { text: "Extracting action items and deadlines", duration: 2000 },
-                    { text: "Prioritizing tasks based on urgency", duration: 2000 },
-                    { text: "Preparing your personalized task list", duration: 1500 }
+                    { text: "Analyzing your latest Zoom meeting", duration: 200 },
+                    { text: "Processing conversation with your manager", duration: 200 },
+                    { text: "Extracting action items and deadlines", duration: 200 },
+                    { text: "Prioritizing tasks based on urgency", duration: 200 },
+                    { text: "Preparing your personalized task list", duration: 150 }
                 ];
 
                 let currentStep = 0;
@@ -165,20 +224,10 @@
                             runStep();
                         }, loadingSequence[currentStep].duration);
                     } else {
-                        // Loading complete, show action prompt
+                        // Loading complete, show project update popup
                         setTimeout(() => {
                             setIsInitialLoading(false);
-                            setShowActionPrompt(true);
-                            
-                            // Add initial AI message after action prompt
-                            setTimeout(() => {
-                                setMessages([{
-                                    id: 1,
-                                    text: "Hi Rohit! I've analyzed your meeting with your manager. Based on the discussion, I've identified several action items for your Tesla earnings presentation.",
-                                    sender: 'assistant',
-                                    timestamp: new Date()
-                                }]);
-                            }, 1000);
+                            setShowProjectUpdatePopup(true);
                         }, 500);
                     }
                 };
@@ -186,35 +235,41 @@
                 runStep();
             }, []);
 
+            const handleStartProject = () => {
+                setShowProjectUpdatePopup(false);
+                
+                // Reset animation states
+                setTypedGreeting('');
+                setShowUserIcon(false);
+                setShowMeetingCard(false);
+                setShowTasksTitle(false);
+                setVisibleTasks([]);
+                setShowStartButton(false);
+                
+                // Go directly to chat with initial message
+                setTimeout(() => {
+                    setMessages([{
+                        id: 1,
+                        text: "🎯 Your manager mentioned you need the Q3 financial sheet from Sarah Chen for your Tesla presentation. This seems to be blocking your progress.\n\nWould you like me to draft an email to Sarah requesting this information?",
+                        sender: 'assistant',
+                        timestamp: new Date()
+                    }]);
+                }, 300);
+            };
+
+            const handleViewMeetingNotes = () => {
+                setShowMeetingNotesModal(true);
+            };
+
+            const handleCloseMeetingNotes = () => {
+                setShowMeetingNotesModal(false);
+            };
+
             const handleActionResponse = (action) => {
                 setShowActionPrompt(false);
                 
                 if (action === 'yes') {
-                    // Show email draft in chat
-                    setTimeout(() => {
-                        const emailDraftMessage = {
-                            id: 2,
-                            text: "I've drafted an email to Sarah Chen requesting the Q3 financial sheet:",
-                            sender: 'assistant',
-                            timestamp: new Date(),
-                            hasEmailDraft: true,
-                            emailData: {
-                                to: 'sarah.chen@company.com',
-                                subject: 'Request for Q3 Financial Sheet - Tesla Earnings Presentation',
-                                body: `Hi Sarah,
-
-I hope this email finds you well. I'm currently working on the Tesla earnings presentation for our upcoming stakeholder meeting, and I need the latest Q3 financial sheet to ensure our projections are accurate.
-
-Could you please send me the most recent Q3 financial data when you have a moment? This will help me finalize the revenue projections section.
-
-Thanks in advance for your help!
-
-Best regards,
-Rohit`
-                            }
-                        };
-                        setMessages(prev => [...prev, emailDraftMessage]);
-                    }, 1000);
+                    handleSendEmail();
                 } else {
                     const skipMessage = {
                         id: 2,
@@ -269,6 +324,17 @@ Rohit`
                             }
                         };
                         setMessages(prev => [...prev, receivedMessage]);
+                        
+                        // If the received file is Tesla_Q3_Financial_Sheet.xlsx, update its status after 0.2s
+                        if (receivedMessage.fileData && receivedMessage.fileData.name === 'Tesla_Q3_Financial_Sheet.xlsx') {
+                            setTimeout(() => {
+                                setMessages(prevMsgs => prevMsgs.map(msg =>
+                                    msg.fileData && msg.fileData.name === 'Tesla_Q3_Financial_Sheet.xlsx'
+                                        ? { ...msg, fileStatus: 'View' }
+                                        : msg
+                                ));
+                            }, 200);
+                        }
                         
                         // After 2 seconds, show context addition and PowerPoint suggestion
                         setTimeout(() => {
@@ -389,10 +455,57 @@ Rohit`
                 };
 
                 setMessages(prev => [...prev, newMessage]);
+                const userInput = inputText.toLowerCase().trim();
                 setInputText('');
                 setIsLoading(true);
 
-                // Simulate AI response
+                // Check if user is responding to the initial email question
+                if (messages.length === 1 && (userInput === 'yes' || userInput === 'y')) {
+                    // User confirmed to draft email, start the email sequence
+                    setIsLoading(false);
+                    setTimeout(() => {
+                        const emailDraftMessage = {
+                            id: messages.length + 2,
+                            text: "I've drafted an email to Sarah Chen requesting the Q3 financial sheet:",
+                            sender: 'assistant',
+                            timestamp: new Date(),
+                            hasEmailDraft: true,
+                            emailData: {
+                                to: 'sarah.chen@company.com',
+                                subject: 'Request for Q3 Financial Sheet - Tesla Earnings Presentation',
+                                body: `Hi Sarah,
+
+I hope this email finds you well. I'm currently working on the Tesla earnings presentation for our upcoming stakeholder meeting, and I need the latest Q3 financial sheet to ensure our projections are accurate.
+
+Could you please send me the most recent Q3 financial data when you have a moment? This will help me finalize the revenue projections section.
+
+Thanks in advance for your help!
+
+Best regards,
+Rohit`
+                            }
+                        };
+                        setMessages(prev => [...prev, emailDraftMessage]);
+                    }, 1000);
+                    return;
+                }
+
+                // Check if user said no to the initial email question
+                if (messages.length === 1 && (userInput === 'no' || userInput === 'n')) {
+                    setIsLoading(false);
+                    setTimeout(() => {
+                        const skipMessage = {
+                            id: messages.length + 2,
+                            text: "No problem! I'll keep this task in your list for later. Is there anything else from your meeting that you'd like to work on right now?",
+                            sender: 'assistant',
+                            timestamp: new Date()
+                        };
+                        setMessages(prev => [...prev, skipMessage]);
+                    }, 1000);
+                    return;
+                }
+
+                // Default responses for other messages
                 setTimeout(() => {
                     const responses = [
                         "I understand. Let me help you with those presentation updates. What specific changes did your manager request?",
@@ -435,6 +548,33 @@ Rohit`
                     <div className="tesla-chat-container">
                         <div className="tesla-chat-header">
                             <div className="tesla-chat-title">Tesla Earnings Project</div>
+                            
+                            {/* View Toggle */}
+                            <div className="tesla-view-toggle">
+                                <button 
+                                    className={`tesla-toggle-btn ${currentView === 'chat' ? 'active' : ''}`}
+                                    onClick={() => setCurrentView('chat')}
+                                    title="Chat"
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    </svg>
+                                </button>
+                                <button 
+                                    className={`tesla-toggle-btn ${currentView === 'workspace' ? 'active' : ''}`}
+                                    onClick={() => setCurrentView('workspace')}
+                                    title="Workspace"
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14,2 14,8 20,8"/>
+                                        <line x1="16" y1="13" x2="8" y2="13"/>
+                                        <line x1="16" y1="17" x2="8" y2="17"/>
+                                        <polyline points="10,9 9,9 8,9"/>
+                                    </svg>
+                                </button>
+                            </div>
+
                             <button className="tesla-chat-toggle" onClick={handleToggleChat}>
                                 📋
                             </button>
@@ -459,168 +599,395 @@ Rohit`
                 <div className="tesla-chat-container">
                     <div className="tesla-chat-header">
                         <div className="tesla-chat-title">Tesla Earnings Project</div>
+                        
+                        {/* View Toggle */}
+                        <div className="tesla-view-toggle">
+                            <button 
+                                className={`tesla-toggle-btn ${currentView === 'chat' ? 'active' : ''}`}
+                                onClick={() => setCurrentView('chat')}
+                                title="Chat"
+                            >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                </svg>
+                            </button>
+                            <button 
+                                className={`tesla-toggle-btn ${currentView === 'workspace' ? 'active' : ''}`}
+                                onClick={() => setCurrentView('workspace')}
+                                title="Workspace"
+                            >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14,2 14,8 20,8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10,9 9,9 8,9"/>
+                                </svg>
+                            </button>
+                        </div>
+
                         <button className="tesla-chat-toggle" onClick={handleToggleChat}>
                             📋
                         </button>
                     </div>
                     <div className="tesla-chat-content">
                         <div className={`tesla-chat-main ${showTasks ? 'with-tasks' : ''}`}>
-                            {showActionPrompt && (
-                                <div className="tesla-action-prompt">
-                                    <div className="tesla-action-title">🎯 Priority Action Identified</div>
-                                    <div className="tesla-action-text">
-                                        Your manager mentioned you need the Q3 financial sheet from Sarah Chen for your Tesla presentation. This seems to be blocking your progress.
-                                        <br/><br/>
-                                        Would you like me to draft an email to Sarah requesting this information?
+                            {currentView === 'chat' ? (
+                                /* Chat Interface */
+                                <>
+                                    {showProjectUpdatePopup && (
+                                        <div className="tesla-project-update-overlay">
+                                            <div className="tesla-project-update-card">
+                                                <div className="tesla-project-update-header">
+                                                    <div className="tesla-project-header-content">
+                                                        {showUserIcon && (
+                                                            <img src="cursor.png" alt="User" className="tesla-project-user-icon tesla-animate-in" />
+                                                        )}
+                                                        <h2 className={`tesla-project-greeting ${typedGreeting === fullGreeting ? 'typing-complete' : ''}`}>
+                                                            {typedGreeting}
+                                                            {typedGreeting !== fullGreeting && <span className="tesla-typing-cursor">|</span>}
+                                                        </h2>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="tesla-project-update-content">
+                                                    {/* Clickable Sub-Card for Meeting Notes */}
+                                                    {showMeetingCard && (
+                                                        <div className="tesla-meeting-notes-card tesla-animate-in" onClick={handleViewMeetingNotes}>
+                                                            <div className="tesla-meeting-notes-icon">📄</div>
+                                                            <div className="tesla-meeting-notes-text">
+                                                                <span className="tesla-meeting-notes-title">View Meeting Notes & Full Transcript</span>
+                                                                <span className="tesla-meeting-notes-arrow">→</span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Waterfall To-Do Checklist */}
+                                                    <div className="tesla-waterfall-checklist">
+                                                        {showTasksTitle && (
+                                                            <h3 className="tesla-waterfall-title tesla-animate-in">Project Tasks</h3>
+                                                        )}
+                                                        <div className="tesla-waterfall-flow">
+                                                            {tasks.map((task, index) => (
+                                                                <div 
+                                                                    key={task.id} 
+                                                                    className={`tesla-waterfall-item ${visibleTasks.includes(task.id) ? 'tesla-animate-in' : ''}`}
+                                                                    style={{
+                                                                        opacity: visibleTasks.includes(task.id) ? 1 : 0,
+                                                                        transform: visibleTasks.includes(task.id) ? 'translateY(0)' : 'translateY(30px)',
+                                                                        transition: 'all 0.6s ease-out'
+                                                                    }}
+                                                                >
+                                                                    <div className="tesla-waterfall-node">
+                                                                        <div className={`tesla-waterfall-circle ${completedTasks.has(task.id) ? 'completed' : ''}`}>
+                                                                            {completedTasks.has(task.id) ? '✓' : index + 1}
+                                                                        </div>
+                                                                        {index < tasks.length - 1 && (
+                                                                            <div className="tesla-waterfall-line"></div>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="tesla-waterfall-content">
+                                                                        <div className="tesla-waterfall-task-title">{task.title}</div>
+                                                                        <div className="tesla-waterfall-task-desc">{task.description}</div>
+                                                                        <div className={`tesla-waterfall-priority ${task.priority}`}>
+                                                                            {task.priority.toUpperCase()}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Start Button */}
+                                                    {showStartButton && (
+                                                        <div className="tesla-project-update-actions">
+                                                            <button className="tesla-project-start-btn tesla-animate-in" onClick={handleStartProject}>
+                                                                <span className="tesla-start-btn-text">Start</span>
+                                                                <span className="tesla-start-btn-arrow">→</span>
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {showMeetingNotesModal && (
+                                        <div className="tesla-modal-overlay" onClick={handleCloseMeetingNotes}>
+                                            <div className="tesla-modal-content" onClick={(e) => e.stopPropagation()}>
+                                                <div className="tesla-modal-header">
+                                                    <h3 className="tesla-modal-title">Meeting Notes & Full Transcript</h3>
+                                                    <button className="tesla-modal-close" onClick={handleCloseMeetingNotes}>
+                                                        ✗
+                                                    </button>
+                                                </div>
+                                                <div className="tesla-modal-body">
+                                                    <div className="tesla-meeting-summary">
+                                                        <h4>Meeting Summary</h4>
+                                                        <p><strong>Date:</strong> Today, 2:30 PM</p>
+                                                        <p><strong>Attendees:</strong> Rohit Shetty, Manager Jeff</p>
+                                                        <p><strong>Duration:</strong> 45 minutes</p>
+                                                    </div>
+                                                    <div className="tesla-meeting-transcript">
+                                                        <h4>Key Discussion Points</h4>
+                                                        <ul>
+                                                            <li>Need to update Tesla Q3 financial projections</li>
+                                                            <li>Revenue data requires Sarah Chen's latest spreadsheet</li>
+                                                            <li>Competitor analysis section needs refinement</li>
+                                                            <li>Executive summary should highlight key growth metrics</li>
+                                                            <li>Deadline: End of week for stakeholder review</li>
+                                                        </ul>
+                                                    </div>
+                                                    <div className="tesla-meeting-actions">
+                                                        <h4>Action Items Identified</h4>
+                                                        <ul>
+                                                            <li>✅ Extract action items from meeting (completed)</li>
+                                                            <li>📧 Email Sarah Chen for Q3 financial sheet</li>
+                                                            <li>📊 Update PowerPoint revenue projections</li>
+                                                            <li>🔍 Review competitor analysis data</li>
+                                                            <li>📋 Prepare executive summary</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="tesla-chat-messages">
+                                        {messages.map((message) => (
+                                            <div key={message.id} className={`tesla-chat-message ${message.sender}`}>
+                                                <div className={`tesla-chat-bubble ${message.sender}`}>
+                                                    {message.text}
+                                                </div>
+                                                
+                                                {/* Email Draft Component */}
+                                                {message.hasEmailDraft && (
+                                                    <div className="tesla-email-draft-box">
+                                                        <div className="tesla-email-draft-header">
+                                                            <span className="tesla-email-draft-icon">📧</span>
+                                                            <span className="tesla-email-draft-title">Email Draft</span>
+                                                        </div>
+                                                        <div className="tesla-email-draft-content">
+                                                            <div className="tesla-email-draft-field">
+                                                                <strong>To:</strong> {message.emailData.to}
+                                                            </div>
+                                                            <div className="tesla-email-draft-field">
+                                                                <strong>Subject:</strong> {message.emailData.subject}
+                                                            </div>
+                                                            <div className="tesla-email-draft-body">
+                                                                {message.emailData.body.split('\n').map((line, index) => (
+                                                                    <p key={index}>{line}</p>
+                                                                ))}
+                                                            </div>
+                                                            <div className="tesla-email-draft-actions">
+                                                                <button 
+                                                                    className="tesla-email-draft-send"
+                                                                    onClick={handleSendEmail}
+                                                                    disabled={emailStep !== 'draft'}
+                                                                >
+                                                                    {emailStep === 'draft' ? 'Send Email' : 
+                                                                     emailStep === 'sending' ? 'Sending...' : 
+                                                                     'Email Sent ✓'}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
+                                                {/* Received File Component */}
+                                                {message.hasReceivedFile && (
+                                                    <div className="tesla-file-received-box">
+                                                        <div className="tesla-file-received-header">
+                                                            <span className="tesla-file-received-icon">📎</span>
+                                                            <span className="tesla-file-received-title">File Received</span>
+                                                        </div>
+                                                        <div className="tesla-file-received-content">
+                                                            <div className="tesla-file-received-info">
+                                                                <div className="tesla-file-received-name">{message.fileData.name}</div>
+                                                                <div className="tesla-file-received-details">
+                                                                    From: {message.fileData.sender} • {message.fileData.size}
+                                                                </div>
+                                                            </div>
+                                                            <div className="tesla-file-received-status">
+                                                                {message.fileStatus || 'Processing...'}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
+                                                {/* PowerPoint Suggestion Component */}
+                                                {message.hasPowerpointSuggestion && (
+                                                    <div className="tesla-powerpoint-suggestion-box">
+                                                        <div className="tesla-powerpoint-suggestion-header">
+                                                            <span className="tesla-powerpoint-suggestion-icon">📊</span>
+                                                            <span className="tesla-powerpoint-suggestion-title">PowerPoint Suggestion</span>
+                                                        </div>
+                                                        <div className="tesla-powerpoint-suggestion-content">
+                                                            <div className="tesla-powerpoint-suggestion-field">
+                                                                <strong>Suggested Edits:</strong>
+                                                            </div>
+                                                            <div className="tesla-powerpoint-suggestion-body">
+                                                                {message.powerpointData.suggestedEdits.map((edit, index) => (
+                                                                    <p key={index}>{edit}</p>
+                                                                ))}
+                                                            </div>
+                                                            <div className="tesla-powerpoint-suggestion-actions">
+                                                                <button 
+                                                                    className="tesla-powerpoint-suggestion-apply"
+                                                                    onClick={handleOpenPowerpoint}
+                                                                >
+                                                                    Apply Suggestion
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
+                                                <div className="tesla-chat-timestamp">
+                                                    {formatTime(message.timestamp)}
+                                                </div>
+                                            </div>
+                                        ))}
+                                        
+                                        {isLoading && (
+                                            <div className="tesla-chat-loading">
+                                                <div className="tesla-chat-bubble assistant">
+                                                    <div className="tesla-typing-indicator">
+                                                        <div className="tesla-typing-dot"></div>
+                                                        <div className="tesla-typing-dot"></div>
+                                                        <div className="tesla-typing-dot"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <div ref={messagesEndRef} />
                                     </div>
-                                    <div className="tesla-action-buttons">
-                                        <button 
-                                            className="tesla-action-btn primary"
-                                            onClick={() => handleActionResponse('yes')}
-                                        >
-                                            Yes, draft email
-                                        </button>
-                                        <button 
-                                            className="tesla-action-btn secondary"
-                                            onClick={() => handleActionResponse('no')}
-                                        >
-                                            Not right now
-                                        </button>
+
+                                    <div className="tesla-chat-input-container">
+                                        <div className="tesla-chat-input-box">
+                                            <textarea
+                                                ref={inputRef}
+                                                value={inputText}
+                                                onChange={handleInputChange}
+                                                onKeyPress={handleKeyPress}
+                                                placeholder="Message about your Tesla project..."
+                                                className="tesla-chat-input"
+                                                rows={1}
+                                            />
+                                            <button
+                                                onClick={handleSendMessage}
+                                                disabled={!inputText.trim() || isLoading}
+                                                className={`tesla-chat-send ${inputText.trim() && !isLoading ? 'active' : ''}`}
+                                            >
+                                                ↑
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                /* Workspace Interface */
+                                <div className="tesla-workspace">
+                                    <div className="tesla-workspace-header">
+                                        <h1 className="tesla-notion-title">📊 Tesla Earnings Presentation</h1>
+                                    </div>
+                                    
+                                    <div className="tesla-notion-content">
+                                        {/* Transcript & Notes Section */}
+                                        <div className="tesla-notion-section">
+                                            <h2 className="tesla-notion-heading">📝 Meeting Notes & Transcript</h2>
+                                            <div className="tesla-notion-text">
+                                                <p><strong>Meeting with Manager Jeff</strong> - Today, 2:30 PM (45 minutes)</p>
+                                                <p>Key discussion points from the meeting:</p>
+                                                <ul>
+                                                    <li>Need to update Tesla Q3 financial projections with latest data</li>
+                                                    <li>Revenue data requires Sarah Chen's latest spreadsheet</li>
+                                                    <li>Competitor analysis section needs refinement</li>
+                                                    <li>Executive summary should highlight key growth metrics</li>
+                                                    <li><strong>Deadline:</strong> End of week for stakeholder review</li>
+                                                </ul>
+                                                
+                                                <div className="tesla-notion-callout">
+                                                    🎯 <strong>Primary Action:</strong> Get Q3 financial sheet from Sarah Chen to update revenue projections
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Presentation Section */}
+                                        <div className="tesla-notion-section">
+                                            <h2 className="tesla-notion-heading">📊 Presentation</h2>
+                                            <div className="tesla-notion-file-link" onClick={() => window.open('#', '_blank')}>
+                                                <div className="tesla-notion-file-icon powerpoint">📊</div>
+                                                <div className="tesla-notion-file-info">
+                                                    <div className="tesla-notion-file-name">Tesla_Earnings_Presentation.pptx</div>
+                                                    <div className="tesla-notion-file-meta">Updated 2 minutes ago • 3.2 MB</div>
+                                                </div>
+                                                <div className="tesla-notion-file-action">Open →</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Documents Section */}
+                                        <div className="tesla-notion-section">
+                                            <h2 className="tesla-notion-heading">📄 Documents</h2>
+                                            <div className="tesla-notion-file-link">
+                                                <div className="tesla-notion-file-icon excel">📈</div>
+                                                <div className="tesla-notion-file-info">
+                                                    <div className="tesla-notion-file-name">Tesla_Q3_Financial_Sheet.xlsx</div>
+                                                    <div className="tesla-notion-file-meta">From Sarah Chen • Received 15 min ago • 2.3 MB</div>
+                                                </div>
+                                                <div className="tesla-notion-file-status">✅</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Timeline Section */}
+                                        <div className="tesla-notion-section">
+                                            <h2 className="tesla-notion-heading">⏰ Timeline & Deadlines</h2>
+                                            <div className="tesla-notion-table">
+                                                <div className="tesla-notion-table-header">
+                                                    <div className="tesla-notion-table-cell">Task</div>
+                                                    <div className="tesla-notion-table-cell">Status</div>
+                                                    <div className="tesla-notion-table-cell">Deadline</div>
+                                                </div>
+                                                <div className="tesla-notion-table-row">
+                                                    <div className="tesla-notion-table-cell">Request Q3 Financial Sheet</div>
+                                                    <div className="tesla-notion-table-cell">
+                                                        <span className="tesla-notion-status done">✅ Complete</span>
+                                                    </div>
+                                                    <div className="tesla-notion-table-cell">Today</div>
+                                                </div>
+                                                <div className="tesla-notion-table-row">
+                                                    <div className="tesla-notion-table-cell">Update Revenue Projections</div>
+                                                    <div className="tesla-notion-table-cell">
+                                                        <span className="tesla-notion-status done">✅ Complete</span>
+                                                    </div>
+                                                    <div className="tesla-notion-table-cell">Today</div>
+                                                </div>
+                                                <div className="tesla-notion-table-row">
+                                                    <div className="tesla-notion-table-cell">Review Competitor Analysis</div>
+                                                    <div className="tesla-notion-table-cell">
+                                                        <span className="tesla-notion-status pending">⏳ In Progress</span>
+                                                    </div>
+                                                    <div className="tesla-notion-table-cell">Tomorrow</div>
+                                                </div>
+                                                <div className="tesla-notion-table-row">
+                                                    <div className="tesla-notion-table-cell">Prepare Executive Summary</div>
+                                                    <div className="tesla-notion-table-cell">
+                                                        <span className="tesla-notion-status pending">📝 To Do</span>
+                                                    </div>
+                                                    <div className="tesla-notion-table-cell">Wed</div>
+                                                </div>
+                                                <div className="tesla-notion-table-row">
+                                                    <div className="tesla-notion-table-cell">Final Review with Manager</div>
+                                                    <div className="tesla-notion-table-cell">
+                                                        <span className="tesla-notion-status scheduled">📅 Scheduled</span>
+                                                    </div>
+                                                    <div className="tesla-notion-table-cell">End of Week</div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}
-                            
-                            <div className="tesla-chat-messages">
-                                {messages.map((message) => (
-                                    <div key={message.id} className={`tesla-chat-message ${message.sender}`}>
-                                        <div className={`tesla-chat-bubble ${message.sender}`}>
-                                            {message.text}
-                                        </div>
-                                        
-                                        {/* Email Draft Component */}
-                                        {message.hasEmailDraft && (
-                                            <div className="tesla-email-draft-box">
-                                                <div className="tesla-email-draft-header">
-                                                    <span className="tesla-email-draft-icon">📧</span>
-                                                    <span className="tesla-email-draft-title">Email Draft</span>
-                                                </div>
-                                                <div className="tesla-email-draft-content">
-                                                    <div className="tesla-email-draft-field">
-                                                        <strong>To:</strong> {message.emailData.to}
-                                                    </div>
-                                                    <div className="tesla-email-draft-field">
-                                                        <strong>Subject:</strong> {message.emailData.subject}
-                                                    </div>
-                                                    <div className="tesla-email-draft-body">
-                                                        {message.emailData.body.split('\n').map((line, index) => (
-                                                            <p key={index}>{line}</p>
-                                                        ))}
-                                                    </div>
-                                                    <div className="tesla-email-draft-actions">
-                                                        <button 
-                                                            className="tesla-email-draft-send"
-                                                            onClick={handleSendEmail}
-                                                            disabled={emailStep !== 'draft'}
-                                                        >
-                                                            {emailStep === 'draft' ? 'Send Email' : 
-                                                             emailStep === 'sending' ? 'Sending...' : 
-                                                             'Email Sent ✓'}
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        {/* Received File Component */}
-                                        {message.hasReceivedFile && (
-                                            <div className="tesla-file-received-box">
-                                                <div className="tesla-file-received-header">
-                                                    <span className="tesla-file-received-icon">📎</span>
-                                                    <span className="tesla-file-received-title">File Received</span>
-                                                </div>
-                                                <div className="tesla-file-received-content">
-                                                    <div className="tesla-file-received-info">
-                                                        <div className="tesla-file-received-name">{message.fileData.name}</div>
-                                                        <div className="tesla-file-received-details">
-                                                            From: {message.fileData.sender} • {message.fileData.size}
-                                                        </div>
-                                                    </div>
-                                                    <div className="tesla-file-received-status">
-                                                        Processing...
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        {/* PowerPoint Suggestion Component */}
-                                        {message.hasPowerpointSuggestion && (
-                                            <div className="tesla-powerpoint-suggestion-box">
-                                                <div className="tesla-powerpoint-suggestion-header">
-                                                    <span className="tesla-powerpoint-suggestion-icon">📊</span>
-                                                    <span className="tesla-powerpoint-suggestion-title">PowerPoint Suggestion</span>
-                                                </div>
-                                                <div className="tesla-powerpoint-suggestion-content">
-                                                    <div className="tesla-powerpoint-suggestion-field">
-                                                        <strong>Suggested Edits:</strong>
-                                                    </div>
-                                                    <div className="tesla-powerpoint-suggestion-body">
-                                                        {message.powerpointData.suggestedEdits.map((edit, index) => (
-                                                            <p key={index}>{edit}</p>
-                                                        ))}
-                                                    </div>
-                                                    <div className="tesla-powerpoint-suggestion-actions">
-                                                        <button 
-                                                            className="tesla-powerpoint-suggestion-apply"
-                                                            onClick={handleOpenPowerpoint}
-                                                        >
-                                                            Apply Suggestion
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        <div className="tesla-chat-timestamp">
-                                            {formatTime(message.timestamp)}
-                                        </div>
-                                    </div>
-                                ))}
-                                
-                                {isLoading && (
-                                    <div className="tesla-chat-loading">
-                                        <div className="tesla-chat-bubble assistant">
-                                            <div className="tesla-typing-indicator">
-                                                <div className="tesla-typing-dot"></div>
-                                                <div className="tesla-typing-dot"></div>
-                                                <div className="tesla-typing-dot"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                <div ref={messagesEndRef} />
-                            </div>
-
-                            <div className="tesla-chat-input-container">
-                                <div className="tesla-chat-input-box">
-                                    <textarea
-                                        ref={inputRef}
-                                        value={inputText}
-                                        onChange={handleInputChange}
-                                        onKeyPress={handleKeyPress}
-                                        placeholder="Message about your Tesla project..."
-                                        className="tesla-chat-input"
-                                        rows={1}
-                                    />
-                                    <button
-                                        onClick={handleSendMessage}
-                                        disabled={!inputText.trim() || isLoading}
-                                        className={`tesla-chat-send ${inputText.trim() && !isLoading ? 'active' : ''}`}
-                                    >
-                                        ↑
-                                    </button>
-                                </div>
-                            </div>
                         </div>
 
                         <div className={`tesla-task-panel ${showTasks ? 'open' : ''}`}>

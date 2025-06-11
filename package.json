@@ -5,11 +5,12 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron ."
+    "dev": "NODE_ENV=development electron ."
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^28.1.0"
+    "electron": "^28.1.0",
+    "electron-reload": "^2.0.0-alpha.1"
   }
-} 
+}
