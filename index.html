@@ -1281,56 +1281,51 @@ Rohit`
                                                         {message.hasReportGeneration && (
                                                             <div className="tesla-report-generation-box">
                                                                 <div className="tesla-report-generation-header">
-                                                                    <i className="fas fa-file-word"></i>
-                                                                    <span className="tesla-report-generation-title">Strategic Report Generation</span>
-                                                                    {message.reportData.status === 'generating' && (
-                                                                        <span className="tesla-report-status generating">
-                                                                            <i className="fas fa-spinner fa-spin"></i>
-                                                                            Generating...
-                                                                        </span>
-                                                                    )}
-                                                                    {message.reportData.status === 'completed' && (
-                                                                        <span className="tesla-report-status completed">
-                                                                            <i className="fas fa-check-circle"></i>
-                                                                            Completed
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                                <div className="tesla-report-generation-content">
-                                                                    {message.reportData.status === 'generating' && (
-                                                                        <div className="tesla-report-progress">
-                                                                            <div className="tesla-report-progress-info">
-                                                                                <div className="tesla-report-progress-step">{message.reportData.currentStep}</div>
-                                                                            </div>
-                                                                            <div className="tesla-progress-container">
-                                                                                <div className="tesla-progress-bar" style={{width: '100%'}}></div>
-                                                                            </div>
+                                                                    <div style={{display: 'flex', alignItems: 'center'}}>
+                                                                        <div className="tesla-report-icon-container">
+                                                                            <i className="fas fa-file-word"></i>
                                                                         </div>
-                                                                    )}
-                                                                    {message.reportData.status === 'completed' && (
-                                                                        <div className="tesla-report-generation-info">
-                                                                            <div className="tesla-report-title">{message.reportData.title}</div>
-                                                                            <div className="tesla-report-description">{message.reportData.description}</div>
-                                                                            <div className="tesla-report-file-info">
-                                                                                <div className="tesla-report-file-details">
-                                                                                    <i className="fas fa-file-word"></i>
-                                                                                    <div className="tesla-report-file-text">
-                                                                                        <div className="tesla-report-file-name">{message.reportData.fileName}</div>
-                                                                                        <div className="tesla-report-file-size">{message.reportData.size}</div>
-                                                                                    </div>
+                                                                        <div className="tesla-report-header-content">
+                                                                            <div className="tesla-report-generation-title">Document Generation</div>
+                                                                            {message.reportData.status === 'generating' && (
+                                                                                <div className="tesla-report-status">
+                                                                                    Generating document...
                                                                                 </div>
-                                                                                <button className="tesla-report-open-btn" onClick={() => handleOpenWordDocument(message.reportData.fileName)}>
-                                                                                    <i className="fas fa-external-link-alt"></i>
-                                                                                    Open in Word
-                                                                                </button>
-                                                                            </div>
-                                                                            <div className="tesla-report-file-badge">
-                                                                                <i className="fas fa-file-word"></i>
-                                                                                Word Document
-                                                                            </div>
+                                                                            )}
+                                                                            {message.reportData.status === 'completed' && (
+                                                                                <div className="tesla-report-status">
+                                                                                    Ready to open
+                                                                                </div>
+                                                                            )}
                                                                         </div>
+                                                                    </div>
+                                                                    {message.reportData.status === 'generating' && (
+                                                                        <div className="tesla-report-loading-wheel"></div>
                                                                     )}
                                                                 </div>
+                                                                {message.reportData.status === 'completed' && (
+                                                                    <div className="tesla-report-generation-content">
+                                                                        <div className="tesla-report-file-card">
+                                                                            <div className="tesla-report-file-icon">
+                                                                                <i className="fas fa-file-word"></i>
+                                                                            </div>
+                                                                            <div className="tesla-report-file-details">
+                                                                                <div className="tesla-report-file-name">{message.reportData.fileName}</div>
+                                                                                <div className="tesla-report-file-meta">
+                                                                                    <span>{message.reportData.size}</span>
+                                                                                    <span>Word Document</span>
+                                                                                </div>
+                                                                            </div>
+                                                                            <button className="tesla-report-open-btn" onClick={() => handleOpenWordDocument(message.reportData.fileName)}>
+                                                                                <i className="fas fa-external-link-alt"></i>
+                                                                                Open
+                                                                            </button>
+                                                                        </div>
+                                                                        <div className="tesla-report-description">
+                                                                            {message.reportData.description}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         )}
                                                         
