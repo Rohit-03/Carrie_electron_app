@@ -136,6 +136,12 @@
             const [showTasks, setShowTasks] = useState(false);
             const [completedTasks, setCompletedTasks] = useState(new Set());
             const [emailStep, setEmailStep] = useState('draft'); // draft, sending, sent, received
+            const [documentFormatStep, setDocumentFormatStep] = useState('waiting'); // waiting, asked, selected
+            const [documentGenerationStep, setDocumentGenerationStep] = useState('idle'); // idle, analyzing, structuring, writing, finalizing, completed
+            
+            // Streaming text state
+            const [streamingMessageId, setStreamingMessageId] = useState(null);
+            const [streamingText, setStreamingText] = useState('');
             
             // View toggle state
             const [currentView, setCurrentView] = useState('chat'); // 'chat' or 'workspace'
@@ -151,7 +157,87 @@
             const messagesEndRef = useRef(null);
             const inputRef = useRef(null);
 
-            const fullGreeting = "Hey Rohit, looks like your meeting with Manager Jeff went well!";
+            // Streaming text utility functions
+            const streamText = (text, messageId, onComplete = null) => {
+                setStreamingMessageId(messageId);
+                setStreamingText('');
+                
+                let currentIndex = 0;
+                const streamInterval = setInterval(() => {
+                    if (currentIndex < text.length) {
+                        setStreamingText(prev => prev + text[currentIndex]);
+                        currentIndex++;
+                    } else {
+                        clearInterval(streamInterval);
+                        setStreamingMessageId(null);
+                        setStreamingText('');
+                        // Update the actual message with complete text
+                        setMessages(prev => prev.map(msg => 
+                            msg.id === messageId ? { ...msg, text: text, isStreaming: false } : msg
+                        ));
+                        // Wait a bit after streaming completes before calling onComplete
+                        if (onComplete) {
+                            setTimeout(() => {
+                                onComplete();
+                            }, 500); // Wait 500ms after streaming completes
+                        }
+                    }
+                }, 15); // Much faster - reduced from 30ms to 15ms
+            };
+
+            const addStreamingMessage = (messageData, onComplete = null) => {
+                const messageWithStreaming = {
+                    ...messageData,
+                    text: '',
+                    isStreaming: true
+                };
+                
+                setMessages(prev => [...prev, messageWithStreaming]);
+                
+                // Start streaming after a delay
+                setTimeout(() => {
+                    streamText(messageData.text, messageData.id, onComplete);
+                }, 800);
+            };
+
+            const addStreamingMessageWithTool = (messageData, toolName, onComplete = null) => {
+                // First add the connection indicator
+                const connectionMessage = {
+                    ...messageData,
+                    text: '',
+                    isStreaming: false,
+                    isConnecting: true,
+                    toolName: toolName
+                };
+                
+                setMessages(prev => [...prev, connectionMessage]);
+                
+                // After showing connection, replace with streaming message
+                setTimeout(() => {
+                    setMessages(prev => prev.filter(msg => !msg.isConnecting));
+                    addStreamingMessage(messageData, onComplete);
+                }, 2000); // Show connection for 2 seconds
+            };
+
+            // Helper function to add a message with UI components only after previous streaming completes
+            const addMessageWithUI = (messageData, onComplete = null) => {
+                // Wait for any current streaming to complete
+                const checkAndAdd = () => {
+                    if (streamingMessageId === null) {
+                        // No streaming in progress, safe to add
+                        setMessages(prev => [...prev, messageData]);
+                        if (onComplete) {
+                            setTimeout(onComplete, 1000); // Wait 1 second before next action
+                        }
+                    } else {
+                        // Still streaming, check again in 100ms
+                        setTimeout(checkAndAdd, 100);
+                    }
+                };
+                checkAndAdd();
+            };
+
+            const fullGreeting = "Hey Rohit, looks like your meeting with Manager James went well!";
             const greetingWords = fullGreeting.split(' ');
 
             // Typing animation effect - word by word
@@ -207,10 +293,10 @@
             // Loading sequence
             useEffect(() => {
                 const loadingSequence = [
-                    { text: "Analyzing your latest Zoom meeting", duration: 200 },
-                    { text: "Processing conversation with your manager", duration: 200 },
-                    { text: "Extracting action items and deadlines", duration: 200 },
-                    { text: "Prioritizing tasks based on urgency", duration: 200 },
+                    { text: "Analyzing your latest internal call", duration: 200 },
+                    { text: "Processing feedback from Manager James", duration: 200 },
+                    { text: "Extracting action items and priorities", duration: 200 },
+                    { text: "Identifying strategic improvements needed", duration: 200 },
                     { text: "Preparing your personalized task list", duration: 150 }
                 ];
 
@@ -246,14 +332,15 @@
                 setVisibleTasks([]);
                 setShowStartButton(false);
                 
-                // Go directly to chat with initial message
+                // Go directly to chat with initial streaming message
                 setTimeout(() => {
-                    setMessages([{
+                    const initialMessage = {
                         id: 1,
-                        text: "🎯 Your manager mentioned you need strategic insights from Sarah Chen for your Tesla GTM presentation - specifically strategies to beat Waymo in Austin's autonomous vehicle market.\n\nWould you like me to draft an email to Sarah requesting her expertise on competitive positioning and market penetration strategies?",
+                        text: "James mentioned you need to get strategic insights from Sarah Chen for slide 88 of your Tesla GTM deck - specifically how to make it more competitively positioned against Waymo rather than just a timeline.\n\nWould you like me to draft an email to Sarah requesting her expertise on strategic GTM levers and competitive positioning?",
                         sender: 'assistant',
                         timestamp: new Date()
-                    }]);
+                    };
+                    addStreamingMessage(initialMessage);
                 }, 300);
             };
 
@@ -277,7 +364,7 @@
                         sender: 'assistant',
                         timestamp: new Date()
                     };
-                    setMessages(prev => [...prev, skipMessage]);
+                    addStreamingMessage(skipMessage);
                 }
             };
 
@@ -301,125 +388,147 @@
                     
                     const sentMessage = {
                         id: messages.length + 2,
-                        text: "✅ Email sent successfully! I've marked 'Request GTM Strategy Insights' as completed. Sarah should receive it shortly and will likely respond with her strategic analysis.",
+                        text: "Email sent successfully! I've marked 'Email Sarah Chen for GTM Insights' as completed. Sarah should receive it shortly and will likely respond with her strategic analysis.",
                         sender: 'assistant',
                         timestamp: new Date()
                     };
-                    setMessages(prev => [...prev, sentMessage]);
                     
-                    // Wait 5 seconds then show received file
-                    setTimeout(() => {
-                        setEmailStep('received');
-                        
-                        const receivedMessage = {
-                            id: messages.length + 3,
-                            text: "📧 Great news! Sarah Chen just replied with her strategic recommendations:",
-                            sender: 'assistant',
-                            timestamp: new Date(),
-                            hasEmailResponse: true,
-                            emailResponseData: {
-                                from: 'Sarah Chen',
-                                subject: 'Re: Strategic Input Needed - Tesla GTM Strategy for Austin Market vs Waymo',
-                                preview: `Hi Rohit,
+                    // Use streaming message with tool and proper completion callback
+                    addStreamingMessageWithTool(sentMessage, 'Gmail', () => {
+                        // Only after email sent message streaming completes, show received file
+                        setTimeout(() => {
+                            setEmailStep('received');
+                            
+                            const receivedMessage = {
+                                id: messages.length + 3,
+                                text: "Great news! Sarah Chen just replied with her strategic recommendations:",
+                                sender: 'assistant',
+                                timestamp: new Date(),
+                                hasEmailResponse: true,
+                                emailResponseData: {
+                                    from: 'Sarah Chen',
+                                    subject: 'Re: Input needed on GTM strategy slide - Tesla Austin deck',
+                                    preview: `Hi Rohit,
 
-Great timing on this! For the GTM strategy slide, I'd recommend focusing on these key angles:
+Perfect timing on this question! James is absolutely right about making slide 88 more strategic. 
 
-🚗 **Superior AI Integration**: Tesla's neural networks are more advanced than Waymo's sensor-heavy approach
-💰 **Cost Advantages**: Our manufacturing scale gives us better unit economics  
-🏗️ **Austin Infrastructure**: We already have Gigafactory Texas and local partnerships
-📱 **User Experience**: Tesla's seamless app integration beats Waymo's clunky interface
+For the Austin positioning, I'd focus on these angles that worked really well in Miami:
 
-These three areas will resonate most with Austin stakeholders. The infrastructure angle is especially strong since we're already embedded in the local ecosystem.
+Software flexibility vs hardware constraints: Waymo's tied to their sensor suite and predetermined routes. Tesla's neural net approach means we can adapt to new areas faster and handle edge cases they simply can't process.
 
-Let me know if you need more specifics on any of these!
+Economic scalability: Our manufacturing scale gives us way better unit economics. While they're burning cash on expensive sensors and safety drivers, we're already profitable per vehicle.
+
+Local ecosystem advantage: You've got Gigafactory Texas right there. That's not just manufacturing - it's local workforce, supply chain relationships, and political goodwill that Waymo can't replicate.
+
+The Miami lesson was that stakeholders care most about economic viability and local impact. I'd lead with the scalability story, then hammer home the Austin infrastructure advantage.
+
+Happy to hop on a call if you want to dig deeper into any of these.
 
 Best,
 Sarah`
-                            }
-                        };
-                        setMessages(prev => [...prev, receivedMessage]);
-                        
-                        // After 3 seconds, show context addition note
-                        setTimeout(() => {
-                            const contextMessage = {
-                                id: messages.length + 4,
-                                text: "✅ **Suggestions on which strategies to include added to context**\n\nI've analyzed Sarah's strategic recommendations and added them to my context. Now I can help you update your Tesla GTM presentation with the most compelling competitive positioning strategies.",
-                                sender: 'assistant',
-                                timestamp: new Date()
+                                }
                             };
-                            setMessages(prev => [...prev, contextMessage]);
                             
-                            // Show PowerPoint suggestion
-                            setTimeout(() => {
-                                const powerpointMessage = {
-                                    id: messages.length + 5,
-                                    text: "I can help you update your PowerPoint presentation with Sarah's recommended strategic focus:",
+                            // Use addMessageWithUI to ensure proper timing
+                            addMessageWithUI(receivedMessage, () => {
+                                // Only after email response UI is shown, add context message
+                                const contextMessage = {
+                                    id: messages.length + 4,
+                                    text: "Strategic recommendations added to context\n\nI've analyzed Sarah's strategic recommendations and added them to my context. Now I can help you update slide 88 with the most compelling competitive positioning strategies.",
                                     sender: 'assistant',
-                                    timestamp: new Date(),
-                                    hasPowerpointSuggestion: true,
-                                    powerpointData: {
-                                        fileName: 'Tesla_GTM_Austin_Strategy.pptx',
-                                        suggestedEdits: [
-                                            'Highlight Tesla\'s superior AI integration vs Waymo on slide 3',
-                                            'Emphasize cost advantages and pricing strategy on slide 7',
-                                            'Feature existing Austin infrastructure partnerships on slide 9',
-                                            'Add competitive narrative focusing on Tesla\'s strongest angles'
-                                        ]
-                                    }
+                                    timestamp: new Date()
                                 };
-                                setMessages(prev => [...prev, powerpointMessage]);
-                            }, 1500);
-                        }, 3000);
-                    }, 5000);
+                                
+                                addStreamingMessage(contextMessage, () => {
+                                    // Only after context message streaming completes, show PowerPoint suggestion
+                                    const powerpointMessage = {
+                                        id: messages.length + 5,
+                                        text: "I can help you update slide 88 in your PowerPoint presentation based on Sarah's strategic recommendations:",
+                                        sender: 'assistant',
+                                        timestamp: new Date(),
+                                        hasPowerpointSuggestion: true,
+                                        powerpointData: {
+                                            fileName: 'Tesla_GTM_Austin_Strategy.pptx',
+                                            suggestedEdits: [
+                                                'Reframe slide 88 from timeline to strategic competitive positioning',
+                                                'Lead with economic scalability advantage over Waymo\'s cash burn model',
+                                                'Highlight Gigafactory Texas as local ecosystem advantage they can\'t replicate', 
+                                                'Emphasize software flexibility vs Waymo\'s hardware constraints and geo-fencing',
+                                                'Position Tesla\'s user experience as natural vs Waymo\'s science experiment feel'
+                                            ]
+                                        }
+                                    };
+                                    addMessageWithUI(powerpointMessage);
+                                });
+                            });
+                        }, 2000);
+                    });
                 }, 2000);
             };
 
             const handleSendSlackMessage = () => {
-                // Find the Slack draft message and update it to show loading state
-                setMessages(prev => prev.map(msg => 
-                    msg.hasSlackDraft ? {
-                        ...msg,
-                        slackData: {
-                            ...msg.slackData,
-                            status: 'sending'
-                        }
-                    } : msg
-                ));
+                // Add "Connecting to Slack" tool message first
+                const slackConnectMessage = {
+                    id: messages.length + 1,
+                    text: '',
+                    sender: 'assistant',
+                    timestamp: new Date(),
+                    isConnecting: true,
+                    toolName: 'Slack'
+                };
+                setMessages(prev => [...prev, slackConnectMessage]);
                 
+                // After showing Slack connection, remove it and proceed with sending
                 setTimeout(() => {
-                    // Update to sent state
+                    setMessages(prev => prev.filter(msg => !(msg.isConnecting && msg.toolName === 'Slack')));
+                    
+                    // Find the Slack draft message and update it to show loading state
                     setMessages(prev => prev.map(msg => 
                         msg.hasSlackDraft ? {
                             ...msg,
                             slackData: {
                                 ...msg.slackData,
-                                status: 'sent'
+                                status: 'sending'
                             }
                         } : msg
                     ));
                     
-                    // Add simple success message
-                    const successMessage = {
-                        id: messages.length + 1,
-                        text: "✅ Slack message sent successfully!",
-                        sender: 'assistant',
-                        timestamp: new Date()
-                    };
-                    setMessages(prev => [...prev, successMessage]);
-                    
-                    // Mark third task as completed after a brief delay
                     setTimeout(() => {
-                        setCompletedTasks(prev => new Set([...prev, 4]));
+                        // Update to sent state
+                        setMessages(prev => prev.map(msg => 
+                            msg.hasSlackDraft ? {
+                                ...msg,
+                                slackData: {
+                                    ...msg.slackData,
+                                    status: 'sent'
+                                }
+                            } : msg
+                        ));
                         
-                        const completionMessage = {
+                        // Add simple success message
+                        const successMessage = {
                             id: messages.length + 2,
-                            text: "I've marked 'Develop Market Penetration Strategy' as completed.\n\n🎉 Great work! You've successfully coordinated with Sarah Chen, updated your presentation with strategic insights, generated a comprehensive strategic report, and delivered all materials to your manager. The Tesla GTM strategy is now ready for stakeholder review.",
+                            text: "✅ Slack message sent successfully!",
                             sender: 'assistant',
                             timestamp: new Date()
                         };
-                        setMessages(prev => [...prev, completionMessage]);
-                    }, 1000);
-                }, 2000);
+                        
+                        addStreamingMessage(successMessage, () => {
+                            // Only after success message streams, mark task as completed and show final message
+                            setTimeout(() => {
+                                setCompletedTasks(prev => new Set([...prev, 4]));
+                                
+                                const completionMessage = {
+                                    id: messages.length + 3,
+                                    text: "I've marked 'Develop Market Penetration Strategy' as completed.\n\n🎉 Great work! You've successfully coordinated with Sarah Chen, updated your presentation with strategic insights, generated a comprehensive strategic report, and delivered all materials to your manager. The Tesla GTM strategy is now ready for stakeholder review.",
+                                    sender: 'assistant',
+                                    timestamp: new Date()
+                                };
+                                addStreamingMessage(completionMessage);
+                            }, 500); // Brief delay before final completion
+                        });
+                    }, 2000);
+                }, 2000); // Show Slack connection for 2 seconds
             };
 
             const handleOpenPowerpoint = () => {
@@ -428,24 +537,22 @@ Sarah`
                 
                 const openingMessage = {
                     id: messages.length + 1,
-                    text: "🎯 Opening Tesla_GTM_Austin_Strategy.pptx and applying the strategic updates... I've marked 'Update Competitive Analysis' as completed.",
+                    text: "Opening Tesla_GTM_Austin_Strategy.pptx and applying the strategic updates to slide 88... I've marked 'Update Slide 88 - Strategic POV' as completed.",
                     sender: 'assistant',
                     timestamp: new Date()
                 };
-                setMessages(prev => [...prev, openingMessage]);
                 
-                // After 3 seconds, show completion and actually open the file
-                setTimeout(() => {
+                addStreamingMessage(openingMessage, () => {
+                    // Only after opening message streaming completes, show completion message
                     const completedMessage = {
                         id: messages.length + 2,
-                        text: "✅ PowerPoint presentation updated successfully! Sarah's strategic insights have been integrated into slides 3, 7, and 9. Your competitive analysis now includes specific strategies for beating Waymo in Austin's market.",
+                        text: "PowerPoint presentation updated successfully! Sarah's strategic insights have been integrated into slide 88. Your local deployment plan now emphasizes competitive positioning against Waymo rather than just timeline.",
                         sender: 'assistant',
                         timestamp: new Date()
                     };
-                    setMessages(prev => [...prev, completedMessage]);
                     
-                    // Actually open the PowerPoint file
-                    setTimeout(() => {
+                    addStreamingMessage(completedMessage, () => {
+                        // Actually open the PowerPoint file after completion message streams
                         const filePath = '/Users/wafichoudhury/Downloads/BCG Presentation.pptx';
                         
                         // Use Electron's shell API to open with default application
@@ -461,116 +568,110 @@ Sarah`
                             window.open(`file://${filePath}`, '_blank');
                         }
                         
-                        // Show report generation suggestion
-                        setTimeout(() => {
-                            const reportMessage = {
-                                id: messages.length + 3,
-                                text: "Now I'll generate a strategic report document for your internal alignment team comparing Tesla's market strategy against Waymo in Austin:",
-                                sender: 'assistant',
-                                timestamp: new Date(),
-                                hasReportGeneration: true,
-                                reportData: {
-                                    title: 'Tesla vs Waymo Strategic Analysis - Austin Market',
-                                    description: 'Internal alignment document with competitive positioning recommendations',
-                                    status: 'generating'
-                                }
-                            };
-                            setMessages(prev => [...prev, reportMessage]);
-                            
-                            // After 3 seconds, show report completed
-                            setTimeout(() => {
-                                // Mark third task as completed
-                                setCompletedTasks(prev => new Set([...prev, 3]));
-                                
-                                // Update the report generation message to completed
-                                setMessages(prev => prev.map(msg => 
-                                    msg.hasReportGeneration ? {
-                                        ...msg,
-                                        reportData: {
-                                            ...msg.reportData,
-                                            status: 'completed',
-                                            fileName: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
-                                            fileSize: '2.8 MB'
-                                        }
-                                    } : msg
-                                ));
-                                
-                                const reportCompletedMessage = {
-                                    id: messages.length + 4,
-                                    text: "✅ Strategic report generated successfully! I've marked 'Generate Strategic Report' as completed. The document includes competitive analysis, market positioning recommendations, and strategic insights for the internal alignment team.",
-                                    sender: 'assistant',
-                                    timestamp: new Date()
-                                };
-                                setMessages(prev => [...prev, reportCompletedMessage]);
-                                
-                                // After 2 seconds, show Slack prompt with both attachments
-                                setTimeout(() => {
-                                    const slackPromptMessage = {
-                                        id: messages.length + 5,
-                                        text: "🎯 Perfect! Both documents are now ready for review.\n\nWould you like me to send a Slack message to Manager Jeff with the updated presentation and strategic report?",
-                                        sender: 'assistant',
-                                        timestamp: new Date(),
-                                        hasSlackDraft: true,
-                                        slackData: {
-                                            recipient: 'Manager Jeff',
-                                            channel: '#tesla-project',
-                                            message: 'Hi Jeff! I\'ve completed the strategic updates to our Tesla GTM materials based on Sarah Chen\'s recommendations. The competitive analysis now includes our key advantages against Waymo in Austin, plus I\'ve generated a comprehensive strategic report for the internal alignment team. Both documents are ready for your review!',
-                                            attachments: [
-                                                {
-                                                    fileName: 'Tesla_GTM_Austin_Strategy.pptx',
-                                                    fileSize: '4.2 MB',
-                                                    fileType: 'PowerPoint Presentation'
-                                                },
-                                                {
-                                                    fileName: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
-                                                    fileSize: '2.8 MB',
-                                                    fileType: 'Word Document'
-                                                }
-                                            ]
-                                        }
-                                    };
-                                    setMessages(prev => [...prev, slackPromptMessage]);
-                                }, 2000);
-                            }, 3000);
-                        }, 2000);
-                    }, 1000);
-                }, 3000);
+                        // Only after PowerPoint completion message streams, show format selection
+                        const formatMessage = {
+                            id: messages.length + 3,
+                            text: "I need to generate a strategic report document for your internal alignment team. What format would you prefer?\n\n• Word Document (recommended)\n• PowerPoint Presentation\n• PDF Report\n\nPlease respond with your preference (or I'll default to Word format):",
+                            sender: 'assistant',
+                            timestamp: new Date(),
+                            needsFormatSelection: true
+                        };
+                        addStreamingMessage(formatMessage);
+                        setDocumentFormatStep('asked');
+                    });
+                });
             };
 
             const handleToggleChat = () => {
                 setShowTasks(!showTasks);
             };
 
+            const handleOpenWordDocument = (fileName) => {
+                // Simulate opening the Word document
+                if (window.electronAPI && window.electronAPI.shell) {
+                    // For Electron apps
+                    window.electronAPI.shell.openPath(`/Users/wafichoudhury/Downloads/${fileName}`);
+                } else {
+                    // For browsers, show a notification
+                    alert(`Opening ${fileName} in Microsoft Word...`);
+                }
+            };
+
+            // Enhanced document generation with realistic progress stages
+            const startDocumentGeneration = (onComplete) => {
+                setDocumentGenerationStep('generating');
+                
+                // Single generating message with generic loading bar
+                const generatingMessage = {
+                    id: Date.now(),
+                    text: "Generating strategic report document...",
+                    sender: 'assistant',
+                    timestamp: new Date(),
+                    hasReportGeneration: true,
+                    reportData: {
+                        status: 'generating',
+                        currentStep: 'Generating strategic report document...'
+                    }
+                };
+                
+                addMessageWithUI(generatingMessage, () => {
+                    // Wait 8 seconds for realistic generation time
+                    setTimeout(() => {
+                        setDocumentGenerationStep('completed');
+                        
+                        // Completed message
+                        const completedMessage = {
+                            id: Date.now(),
+                            text: "Strategic report completed! I've created 'Tesla_vs_Waymo_Strategic_Analysis.docx' incorporating Sarah's insights.",
+                            sender: 'assistant',
+                            timestamp: new Date(),
+                            hasReportGeneration: true,
+                            reportData: {
+                                status: 'completed',
+                                fileName: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
+                                title: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
+                                description: 'Strategic comparison analysis incorporating Austin market positioning and competitive advantages',
+                                size: '2.8 MB'
+                            }
+                        };
+                        
+                        addMessageWithUI(completedMessage, () => {
+                            if (onComplete) onComplete();
+                        });
+                    }, 8000); // 8 seconds total generation time
+                });
+            };
+
             const tasks = [
                 {
                     id: 1,
-                    title: "Request GTM Strategy Insights",
-                    description: "Email Sarah Chen for strategic input on Tesla vs Waymo competitive positioning in Austin market",
+                    title: "Email Sarah Chen for GTM Insights",
+                    description: "Get Sarah's input on GTM levers that resonate, leveraging her Miami market activation experience",
                     priority: "high"
                 },
                 {
                     id: 2,
-                    title: "Update Competitive Analysis",
-                    description: "Incorporate Sarah's recommendations into Tesla GTM presentation slides",
+                    title: "Update Slide 88 - Strategic POV",
+                    description: "Reframe slide 88 from timeline to competitive strategic positioning against Waymo's constraints",
                     priority: "high"
                 },
                 {
                     id: 3,
-                    title: "Generate Strategic Report",
-                    description: "Create internal alignment document comparing Tesla's market strategy vs Waymo in Austin",
+                    title: "Research Waymo's Deployment Gaps",
+                    description: "Dig into Waymo's constraints (geo-fencing, L4 redundancies) to shape competitive narrative",
                     priority: "high"
                 },
                 {
                     id: 4,
-                    title: "Develop Market Penetration Strategy",
-                    description: "Finalize strategic recommendations and share updated materials with management",
+                    title: "Create Executive Summary",
+                    description: "Draft 4-5 line exec summary for Mobility Ops team highlighting Tesla's edge and GTM wedge",
                     priority: "medium"
                 },
                 {
                     id: 5,
-                    title: "Schedule Follow-up Meeting",
-                    description: "Book time with manager to review updated presentation before final delivery",
-                    priority: "low"
+                    title: "Finalize Deck Updates",
+                    description: "Complete all strategic updates and prepare for management review",
+                    priority: "medium"
                 }
             ];
 
@@ -601,45 +702,55 @@ Sarah`
                 setInputText('');
                 setIsLoading(true);
 
-                // Check if user is responding to the initial email question
-                if (messages.length === 1 && (userInput === 'yes' || userInput === 'y')) {
-                    // User confirmed to draft email, start the email sequence
-                    setIsLoading(false);
+                // Function to show email loading and draft - moved to top level
+                const showEmailLoadingAndDraft = () => {
+                    // Add loading message
+                    const loadingMessage = {
+                        id: messages.length + 2,
+                        text: "Crafting the email in your voice...",
+                        sender: 'assistant',
+                        timestamp: new Date(),
+                        isLoadingCraft: true
+                    };
+                    setMessages(prev => [...prev, loadingMessage]);
+                    
+                    // After delay, replace with actual email draft
                     setTimeout(() => {
+                        setMessages(prev => prev.filter(msg => !msg.isLoadingCraft));
+                        
                         const emailDraftMessage = {
-                            id: messages.length + 2,
+                            id: Date.now(), // Use timestamp for unique ID
                             text: "I've drafted an email to Sarah Chen requesting strategic insights for our Tesla go-to-market plan:",
                             sender: 'assistant',
                             timestamp: new Date(),
                             hasEmailDraft: true,
                             emailData: {
                                 to: 'sarah.chen@company.com',
-                                subject: 'Strategic Input Needed - Tesla GTM Strategy for Austin Market vs Waymo',
+                                subject: 'Input needed on GTM strategy slide - Tesla Austin deck',
                                 body: `Hi Sarah,
 
-I hope this email finds you well. I'm currently working on our Tesla go-to-market presentation for the Austin autonomous vehicle market, specifically focusing on how we can outcompete Waymo.
+Hope you're doing well. I'm working on our Tesla GTM deck for Austin and could really use your strategic perspective.
 
-For the GTM strategy slide, I need your advice on which strategies to focus on that would best convey Tesla's advantages compared to Waymo:
+James and I just reviewed the presentation and he mentioned that slide 88 (our local deployment plan) is reading more like a timeline right now when we need it to be more of a strategic POV. Specifically, we want to frame it around "what Tesla can do that Waymo can't or won't" in the Austin market.
 
-• Which competitive advantages should we emphasize most strongly?
-• What market positioning strategies would resonate best with Austin stakeholders?
-• Which aspects of Tesla's approach would be most compelling against Waymo?
-• Any specific messaging or angles that would strengthen our competitive narrative?
+James mentioned you led a lot of the early market activation work for Miami and had strong thinking on which GTM levers actually resonated. Would you be able to share your thoughts on:
 
-Your expertise on strategic positioning would be invaluable for determining what to highlight on this critical slide.
+- Which competitive advantages we should emphasize most strongly against Waymo
+- What positioning strategies would work best with Austin stakeholders  
+- How to frame our software advantage enabling more flexible ops vs their geo-fenced constraints
+- Any specific messaging angles that strengthened your Miami approach
 
-Could you share your thoughts on which strategies would be most effective? This will help me focus the presentation on our strongest competitive advantages.
+I'm trying to make this slide much more surgical in how we position against Waymo's known gaps rather than just laying out our timeline.
 
-Thanks in advance for your strategic guidance!
+Would really appreciate your take before we finalize this. Thanks!
 
-Best regards,
+Best,
 Rohit`
                             }
                         };
-                        setMessages(prev => [...prev, emailDraftMessage]);
-                    }, 1000);
-                    return;
-                }
+                        addMessageWithUI(emailDraftMessage);
+                    }, 3000); // Show loading for 3 seconds
+                };
 
                 // Check if user said no to the initial email question
                 if (messages.length === 1 && (userInput === 'no' || userInput === 'n')) {
@@ -651,8 +762,141 @@ Rohit`
                             sender: 'assistant',
                             timestamp: new Date()
                         };
-                        setMessages(prev => [...prev, skipMessage]);
+                        addStreamingMessage(skipMessage);
                     }, 1000);
+                    return;
+                }
+
+                // Check if user is responding to the initial email question
+                if (messages.length === 1 && (userInput === 'yes' || userInput === 'y')) {
+                    // User confirmed to draft email
+                    setIsLoading(false);
+                    
+                    // Show email loading and draft immediately
+                    setTimeout(() => {
+                        showEmailLoadingAndDraft();
+                    }, 500); // Short delay for better UX
+                    return;
+                }
+
+                // Check if user is responding to format selection
+                if (documentFormatStep === 'asked') {
+                    setIsLoading(false);
+                    setDocumentFormatStep('selected');
+                    
+                    // Determine format (default to Word if unclear)
+                    let selectedFormat = 'Word Document';
+                    if (userInput.includes('powerpoint') || userInput.includes('ppt')) {
+                        selectedFormat = 'PowerPoint Presentation';
+                    } else if (userInput.includes('pdf')) {
+                        selectedFormat = 'PDF Report';
+                    }
+                    
+                    // Show loading message for document generation
+                    const loadingMessage = {
+                        id: messages.length + 2,
+                        text: "Crafting the strategic report in your voice...",
+                        sender: 'assistant',
+                        timestamp: new Date(),
+                        isLoadingCraft: true
+                    };
+                    setMessages(prev => [...prev, loadingMessage]);
+                    
+                    // After delay, start enhanced document generation
+                    setTimeout(() => {
+                        setMessages(prev => prev.filter(msg => !msg.isLoadingCraft));
+                        
+                        // Start the enhanced document generation process
+                        startDocumentGeneration(() => {
+                            // Only after document generation is complete, show manager update prompt
+                            const managerUpdatePrompt = {
+                                id: messages.length + 10,
+                                text: "Perfect! I've completed the strategic report. Would you like me to send an update to Manager Jeff about the completed deliverables? I can draft a message highlighting:\n\n• Updated Tesla GTM presentation with competitive positioning\n• Strategic analysis report with Sarah's insights\n• Progress on all action items from your meeting\n\nShould I prepare this update for Jeff?",
+                                sender: 'assistant',
+                                timestamp: new Date(),
+                                needsManagerUpdate: true
+                            };
+                            addStreamingMessage(managerUpdatePrompt);
+                        });
+                    }, 2000); // Show loading for 2 seconds before starting generation
+                    return;
+                }
+
+                // Check if user is responding to Slack message prompt
+                const lastMessage = messages[messages.length - 1];
+                if (lastMessage && lastMessage.hasSlackDraft && (userInput === 'yes' || userInput === 'y')) {
+                    setIsLoading(false);
+                    
+                    // Show loading message for Slack draft
+                    const loadingMessage = {
+                        id: messages.length + 2,
+                        text: "Crafting the Slack message in your voice...",
+                        sender: 'assistant',
+                        timestamp: new Date(),
+                        isLoadingCraft: true
+                    };
+                    setMessages(prev => [...prev, loadingMessage]);
+                    
+                    // After delay, replace with Slack send confirmation
+                    setTimeout(() => {
+                        setMessages(prev => prev.filter(msg => !msg.isLoadingCraft));
+                        
+                        const slackSentMessage = {
+                            id: messages.length + 2,
+                            text: "Slack message sent to Manager Jeff successfully! I've included both the updated Tesla GTM presentation and the strategic analysis report as attachments. Jeff should have everything he needs for review.",
+                            sender: 'assistant',
+                            timestamp: new Date()
+                        };
+                        addStreamingMessage(slackSentMessage);
+                    }, 3000); // Show loading for 3 seconds
+                    return;
+                }
+
+                // Check if user is responding to manager update prompt
+                if (lastMessage && lastMessage.needsManagerUpdate && (userInput === 'yes' || userInput === 'y')) {
+                    setIsLoading(false);
+                    
+                    // Show loading message for manager update draft
+                    const loadingMessage = {
+                        id: messages.length + 2,
+                        text: "Crafting an update message for Manager Jeff...",
+                        sender: 'assistant',
+                        timestamp: new Date(),
+                        isLoadingCraft: true
+                    };
+                    setMessages(prev => [...prev, loadingMessage]);
+                    
+                    // After delay, show manager update draft
+                    setTimeout(() => {
+                        setMessages(prev => prev.filter(msg => !msg.isLoadingCraft));
+                        
+                        const managerUpdateMessage = {
+                            id: messages.length + 2,
+                            text: "I've drafted an update message for Manager Jeff with all the completed deliverables:",
+                            sender: 'assistant',
+                            timestamp: new Date(),
+                            hasSlackDraft: true,
+                            slackData: {
+                                recipient: 'Manager Jeff',
+                                channel: '#tesla-gtm-project',
+                                message: `Hi Jeff,\n\nGreat progress update on the Tesla GTM strategy project:\n\n✅ **Completed Deliverables:**\n• Updated Tesla GTM presentation with competitive positioning against Waymo\n• Strategic analysis report incorporating Sarah Chen's market insights\n• Slide 88 reframed from timeline to strategic competitive advantages\n• Executive summary highlighting Tesla's edge and GTM wedge\n\n📊 **Key Strategic Improvements:**\n• Focus on economic scalability vs Waymo's cash burn model\n• Emphasis on Gigafactory Texas as local ecosystem advantage\n• Positioning of software flexibility vs hardware constraints\n\n📎 **Documents Ready for Review:**\n• Tesla_GTM_Austin_Strategy.pptx (4.1 MB)\n• Tesla_vs_Waymo_Strategic_Analysis.docx (2.8 MB)\n\nAll action items from our meeting have been addressed. Ready for your review and stakeholder presentation.\n\nBest,\nRohit`,
+                                attachments: [
+                                    {
+                                        fileName: 'Tesla_GTM_Austin_Strategy.pptx',
+                                        fileType: 'PowerPoint Presentation',
+                                        fileSize: '4.1 MB'
+                                    },
+                                    {
+                                        fileName: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
+                                        fileType: 'Word Document',
+                                        fileSize: '2.8 MB'
+                                    }
+                                ],
+                                status: 'draft'
+                            }
+                        };
+                        addMessageWithUI(managerUpdateMessage);
+                    }, 3000); // Show loading for 3 seconds
                     return;
                 }
 
@@ -674,7 +918,7 @@ Rohit`
                         timestamp: new Date()
                     };
                     
-                    setMessages(prev => [...prev, aiResponse]);
+                    addStreamingMessage(aiResponse);
                     setIsLoading(false);
                 }, 1500);
             };
@@ -875,28 +1119,45 @@ Rohit`
                                                 <div className="tesla-modal-body">
                                                     <div className="tesla-meeting-summary">
                                                         <h4>Meeting Summary</h4>
-                                                        <p><strong>Date:</strong> Today, 2:30 PM</p>
-                                                        <p><strong>Attendees:</strong> Rohit Shetty, Manager Jeff</p>
-                                                        <p><strong>Duration:</strong> 45 minutes</p>
+                                                        <p><strong>Date:</strong> Today, 9:37 AM CST</p>
+                                                        <p><strong>Attendees:</strong> James (Manager), Rohit (Associate)</p>
+                                                        <p><strong>Duration:</strong> ~11 minutes</p>
                                                     </div>
                                                     <div className="tesla-meeting-transcript">
-                                                        <h4>Key Discussion Points</h4>
-                                                        <ul>
-                                                            <li>Tesla's strategy to compete with Waymo in Austin's autonomous vehicle market</li>
-                                                            <li>Need strategic insights from Sarah Chen on Austin market dynamics</li>
-                                                            <li>Competitive positioning analysis against Waymo's current presence</li>
-                                                            <li>Go-to-market strategy should emphasize Tesla's unique advantages</li>
-                                                            <li>Deadline: End of week for stakeholder review</li>
-                                                        </ul>
+                                                        <h4>Full Transcript</h4>
+                                                        <div className="tesla-transcript-content">
+                                                            <p><strong>James:</strong> Hey Rohit, how's it going?</p>
+                                                            <p><strong>Rohit:</strong> Hey! Pretty good, just got my third coffee of the morning, so I'm officially awake now. You?</p>
+                                                            <p><strong>James:</strong> Haha, love that. Yeah, I'm on number two, trying to pace myself. Long day of calls ahead. But hey—I wanted to quickly chat through the Tesla GTM deck you sent over.</p>
+                                                            <p><strong>Rohit:</strong> Totally, I've got it open.</p>
+                                                            <p><strong>James:</strong> Cool. So first off, appreciate the fast turnaround. The structure's solid, and there's a lot in there we can work with. That said, I think we're still a bit too high-level in how we're telling the story—especially in light of what Waymo's already doing in Austin.</p>
+                                                            <p><strong>Rohit:</strong> Yeah, I was wondering about that—I wasn't sure how aggressive to be on the comparison front.</p>
+                                                            <p><strong>James:</strong> Right, and I don't think we need to be super aggressive, but we do need to be surgical. Like on slide 88, where you walk through the local deployment plan—right now that reads more like a timeline. What we actually need is more of a strategic POV: "What's Tesla doing here that Waymo can't or won't?"</p>
+                                                            <p><strong>Rohit:</strong> Okay—so reframe that slide to make it more competitive?</p>
+                                                            <p><strong>James:</strong> Exactly. Maybe even frame it like a response to Waymo's known gaps. For example, if Waymo's constrained to geo-fenced routes or dependent on L4 redundancies, how is Tesla's software advantage enabling more flexible ops or faster scale?</p>
+                                                            <p><strong>Rohit:</strong> Got it. I'll dig into some of the deployment constraints Waymo has and shape around that.</p>
+                                                            <p><strong>James:</strong> Perfect. Also—can you spin up a short exec summary of the GTM plan? Just 4-5 lines I can send to the Mobility Ops team. High-level stuff—what's Tesla's edge, what's the GTM wedge, and why it matters specifically in Austin.</p>
+                                                            <p><strong>Rohit:</strong> Yeah, no problem. I'll drop it in Slack this afternoon?</p>
+                                                            <p><strong>James:</strong> That works. Just tag me so I don't miss it.</p>
+                                                            <p><strong>Rohit:</strong> Will do.</p>
+                                                            <p><strong>James:</strong> Also—have you looped in Sarah Chen yet?</p>
+                                                            <p><strong>Rohit:</strong> Not yet, was planning to after tightening the slides.</p>
+                                                            <p><strong>James:</strong> Definitely worth doing sooner. She led a lot of the early market activation work for Miami and had strong thinking on which GTM levers actually resonated. I'd get her take before we finalize.</p>
+                                                            <p><strong>Rohit:</strong> Yep—I'll reach out to her after this call.</p>
+                                                            <p><strong>James:</strong> Awesome. Thanks Rohit—once we tune a few of these pieces, I think the deck's gonna be in great shape.</p>
+                                                            <p><strong>Rohit:</strong> Appreciate the feedback. I'll circle back later today with the summary and a cleaned-up slide 88.</p>
+                                                            <p><strong>James:</strong> Sounds good. Talk soon.</p>
+                                                            <p><strong>Rohit:</strong> Later!</p>
+                                                        </div>
                                                     </div>
                                                     <div className="tesla-meeting-actions">
                                                         <h4>Action Items Identified</h4>
                                                         <ul>
                                                             <li>✅ Extract action items from meeting (completed)</li>
                                                             <li>📧 Email Sarah Chen for GTM strategy insights</li>
-                                                            <li>📊 Update PowerPoint competitive analysis</li>
-                                                            <li>🔍 Research Austin market penetration strategies</li>
-                                                            <li>📋 Prepare executive summary on competitive advantages</li>
+                                                            <li>📊 Update slide 88 with competitive strategic positioning</li>
+                                                            <li>📋 Create executive summary for Mobility Ops team</li>
+                                                            <li>🔍 Research Waymo's deployment constraints and gaps</li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -907,220 +1168,258 @@ Rohit`
                                     <div className="tesla-chat-messages">
                                         {messages.map((message) => (
                                             <div key={message.id} className={`tesla-chat-message ${message.sender}`}>
-                                                <div className={`tesla-chat-bubble ${message.sender}`}>
-                                                    {message.text}
-                                                </div>
-                                                
-                                                {/* Email Draft Component */}
-                                                {message.hasEmailDraft && (
-                                                    <div className="tesla-email-draft-box">
-                                                        <div className="tesla-email-draft-header">
-                                                            <span className="tesla-email-draft-icon">📧</span>
-                                                            <span className="tesla-email-draft-title">Email Draft</span>
+                                                {/* Tool Connection Component */}
+                                                {message.isConnecting && (
+                                                    <div className="tesla-tool-connection">
+                                                        <div className="tesla-tool-icon slack">
+                                                            <i className="fab fa-slack"></i>
                                                         </div>
-                                                        <div className="tesla-email-draft-content">
-                                                            <div className="tesla-email-draft-field">
-                                                                <strong>To:</strong> {message.emailData.to}
-                                                            </div>
-                                                            <div className="tesla-email-draft-field">
-                                                                <strong>Subject:</strong> {message.emailData.subject}
-                                                            </div>
-                                                            <div className="tesla-email-draft-body">
-                                                                {message.emailData.body.split('\n').map((line, index) => (
-                                                                    <p key={index}>{line}</p>
-                                                                ))}
-                                                            </div>
-                                                            <div className="tesla-email-draft-actions">
-                                                                <button 
-                                                                    className="tesla-email-draft-send"
-                                                                    onClick={handleSendEmail}
-                                                                    disabled={emailStep !== 'draft'}
-                                                                >
-                                                                    {emailStep === 'draft' ? 'Send Email' : 
-                                                                     emailStep === 'sending' ? 'Sending...' : 
-                                                                     'Email Sent ✓'}
-                                                                </button>
-                                                            </div>
+                                                        <div className="tesla-tool-spinner">
+                                                            <i className="fas fa-spinner fa-spin"></i>
                                                         </div>
+                                                        <span>Connecting to {message.toolName}...</span>
                                                     </div>
                                                 )}
                                                 
-                                                {/* Received File Component */}
-                                                {message.hasReceivedFile && (
-                                                    <div className="tesla-file-received-box">
-                                                        <div className="tesla-file-received-header">
-                                                            <span className="tesla-file-received-icon">📎</span>
-                                                            <span className="tesla-file-received-title">File Received</span>
+                                                {/* Regular message content */}
+                                                {!message.isConnecting && (
+                                                    <>
+                                                        <div className={`tesla-chat-bubble ${message.sender}`}>
+                                                            {message.isStreaming && streamingMessageId === message.id ? 
+                                                                <>
+                                                                    {streamingText}
+                                                                    <span className="tesla-streaming-cursor">|</span>
+                                                                </> 
+                                                                : message.text
+                                                            }
                                                         </div>
-                                                        <div className="tesla-file-received-content">
-                                                            <div className="tesla-file-received-info">
-                                                                <div className="tesla-file-received-name">{message.fileData.name}</div>
-                                                                <div className="tesla-file-received-details">
-                                                                    From: {message.fileData.sender} • {message.fileData.size}
+                                                        
+                                                        {/* Email Draft Component */}
+                                                        {message.hasEmailDraft && (
+                                                            <div className="tesla-email-draft-box">
+                                                                <div className="tesla-email-draft-header">
+                                                                    <span className="tesla-email-draft-icon">📧</span>
+                                                                    <span className="tesla-email-draft-title">Email Draft</span>
+                                                                </div>
+                                                                <div className="tesla-email-draft-content">
+                                                                    <div className="tesla-email-draft-field">
+                                                                        <strong>To:</strong> {message.emailData.to}
+                                                                    </div>
+                                                                    <div className="tesla-email-draft-field">
+                                                                        <strong>Subject:</strong> {message.emailData.subject}
+                                                                    </div>
+                                                                    <div className="tesla-email-draft-body">
+                                                                        {message.emailData.body.split('\n').map((line, index) => (
+                                                                            <p key={index}>{line}</p>
+                                                                        ))}
+                                                                    </div>
+                                                                    <div className="tesla-email-draft-actions">
+                                                                        <button 
+                                                                            className="tesla-email-draft-send"
+                                                                            onClick={handleSendEmail}
+                                                                            disabled={emailStep !== 'draft'}
+                                                                        >
+                                                                            {emailStep === 'draft' ? 'Send Email' : 
+                                                                             emailStep === 'sending' ? 'Sending...' : 
+                                                                             'Email Sent ✓'}
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="tesla-file-received-status">
-                                                                {message.fileStatus || 'Processing...'}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                
-                                                {/* PowerPoint Suggestion Component */}
-                                                {message.hasPowerpointSuggestion && (
-                                                    <div className="tesla-powerpoint-suggestion-box">
-                                                        <div className="tesla-powerpoint-suggestion-header">
-                                                            <span className="tesla-powerpoint-suggestion-icon">📊</span>
-                                                            <span className="tesla-powerpoint-suggestion-title">PowerPoint Suggestion</span>
-                                                        </div>
-                                                        <div className="tesla-powerpoint-suggestion-content">
-                                                            <div className="tesla-powerpoint-suggestion-field">
-                                                                <strong>Suggested Edits:</strong>
-                                                            </div>
-                                                            <div className="tesla-powerpoint-suggestion-body">
-                                                                {message.powerpointData.suggestedEdits.map((edit, index) => (
-                                                                    <p key={index}>{edit}</p>
-                                                                ))}
-                                                            </div>
-                                                            <div className="tesla-powerpoint-suggestion-actions">
-                                                                <button 
-                                                                    className="tesla-powerpoint-suggestion-apply"
-                                                                    onClick={handleOpenPowerpoint}
-                                                                >
-                                                                    Apply Suggestion
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                
-                                                {/* Report Generation Component */}
-                                                {message.hasReportGeneration && (
-                                                    <div className="tesla-report-generation-box">
-                                                        <div className="tesla-report-generation-header">
-                                                            <i className="fas fa-file-alt"></i>
-                                                            <span className="tesla-report-generation-title">Strategic Report Generation</span>
-                                                            {message.reportData.status === 'generating' && (
-                                                                <span className="tesla-report-status generating">
-                                                                    <i className="fas fa-spinner fa-spin"></i>
-                                                                    Generating...
-                                                                </span>
-                                                            )}
-                                                            {message.reportData.status === 'completed' && (
-                                                                <span className="tesla-report-status completed">
-                                                                    <i className="fas fa-check-circle"></i>
-                                                                    Completed
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <div className="tesla-report-generation-content">
-                                                            <div className="tesla-report-generation-info">
-                                                                <div className="tesla-report-title">{message.reportData.title}</div>
-                                                                <div className="tesla-report-description">{message.reportData.description}</div>
-                                                            </div>
-                                                            {message.reportData.status === 'completed' && (
-                                                                <div className="tesla-report-file-info">
-                                                                    <div className="tesla-report-file-details">
-                                                                        <i className="fas fa-file-word"></i>
-                                                                        <div className="tesla-report-file-text">
-                                                                            <div className="tesla-report-file-name">{message.reportData.fileName}</div>
-                                                                            <div className="tesla-report-file-size">{message.reportData.fileSize}</div>
+                                                        )}
+                                                        
+                                                        {/* Received File Component */}
+                                                        {message.hasReceivedFile && (
+                                                            <div className="tesla-file-received-box">
+                                                                <div className="tesla-file-received-header">
+                                                                    <span className="tesla-file-received-icon">📎</span>
+                                                                    <span className="tesla-file-received-title">File Received</span>
+                                                                </div>
+                                                                <div className="tesla-file-received-content">
+                                                                    <div className="tesla-file-received-info">
+                                                                        <div className="tesla-file-received-name">{message.fileData.name}</div>
+                                                                        <div className="tesla-file-received-details">
+                                                                            From: {message.fileData.sender} • {message.fileData.size}
                                                                         </div>
                                                                     </div>
-                                                                    <button className="tesla-report-open-btn" onClick={() => alert('Opening in Word...')}>
-                                                                        <i className="fas fa-external-link-alt"></i>
-                                                                        Open in Word
-                                                                    </button>
+                                                                    <div className="tesla-file-received-status">
+                                                                        {message.fileStatus || 'Processing...'}
+                                                                    </div>
                                                                 </div>
-                                                            )}
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {/* PowerPoint Suggestion Component */}
+                                                        {message.hasPowerpointSuggestion && (
+                                                            <div className="tesla-powerpoint-suggestion-box">
+                                                                <div className="tesla-powerpoint-suggestion-header">
+                                                                    <span className="tesla-powerpoint-suggestion-icon">📊</span>
+                                                                    <span className="tesla-powerpoint-suggestion-title">PowerPoint Suggestion</span>
+                                                                </div>
+                                                                <div className="tesla-powerpoint-suggestion-content">
+                                                                    <div className="tesla-powerpoint-suggestion-field">
+                                                                        <strong>Suggested Edits:</strong>
+                                                                    </div>
+                                                                    <div className="tesla-powerpoint-suggestion-body">
+                                                                        {message.powerpointData.suggestedEdits.map((edit, index) => (
+                                                                            <p key={index}>{edit}</p>
+                                                                        ))}
+                                                                    </div>
+                                                                    <div className="tesla-powerpoint-suggestion-actions">
+                                                                        <button 
+                                                                            className="tesla-powerpoint-suggestion-apply"
+                                                                            onClick={handleOpenPowerpoint}
+                                                                        >
+                                                                            Apply Suggestion
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {/* Report Generation Component */}
+                                                        {message.hasReportGeneration && (
+                                                            <div className="tesla-report-generation-box">
+                                                                <div className="tesla-report-generation-header">
+                                                                    <i className="fas fa-file-word"></i>
+                                                                    <span className="tesla-report-generation-title">Strategic Report Generation</span>
+                                                                    {message.reportData.status === 'generating' && (
+                                                                        <span className="tesla-report-status generating">
+                                                                            <i className="fas fa-spinner fa-spin"></i>
+                                                                            Generating...
+                                                                        </span>
+                                                                    )}
+                                                                    {message.reportData.status === 'completed' && (
+                                                                        <span className="tesla-report-status completed">
+                                                                            <i className="fas fa-check-circle"></i>
+                                                                            Completed
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="tesla-report-generation-content">
+                                                                    {message.reportData.status === 'generating' && (
+                                                                        <div className="tesla-report-progress">
+                                                                            <div className="tesla-report-progress-info">
+                                                                                <div className="tesla-report-progress-step">{message.reportData.currentStep}</div>
+                                                                            </div>
+                                                                            <div className="tesla-progress-container">
+                                                                                <div className="tesla-progress-bar" style={{width: '100%'}}></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    {message.reportData.status === 'completed' && (
+                                                                        <div className="tesla-report-generation-info">
+                                                                            <div className="tesla-report-title">{message.reportData.title}</div>
+                                                                            <div className="tesla-report-description">{message.reportData.description}</div>
+                                                                            <div className="tesla-report-file-info">
+                                                                                <div className="tesla-report-file-details">
+                                                                                    <i className="fas fa-file-word"></i>
+                                                                                    <div className="tesla-report-file-text">
+                                                                                        <div className="tesla-report-file-name">{message.reportData.fileName}</div>
+                                                                                        <div className="tesla-report-file-size">{message.reportData.size}</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <button className="tesla-report-open-btn" onClick={() => handleOpenWordDocument(message.reportData.fileName)}>
+                                                                                    <i className="fas fa-external-link-alt"></i>
+                                                                                    Open in Word
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="tesla-report-file-badge">
+                                                                                <i className="fas fa-file-word"></i>
+                                                                                Word Document
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {/* Email Response Component */}
+                                                        {message.hasEmailResponse && (
+                                                            <div className="tesla-email-response-box">
+                                                                <div className="tesla-email-response-header">
+                                                                    <i className="fas fa-envelope"></i>
+                                                                    <span className="tesla-email-response-title">Email Reply from Sarah Chen</span>
+                                                                </div>
+                                                                <div className="tesla-email-response-content">
+                                                                    <div className="tesla-email-response-fields">
+                                                                        <div><strong>From:</strong> {message.emailResponseData.from}</div>
+                                                                        <div><strong>Subject:</strong> {message.emailResponseData.subject}</div>
+                                                                    </div>
+                                                                    <div className="tesla-email-response-preview">
+                                                                        {message.emailResponseData.preview}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {message.hasSlackDraft && (
+                                                            <div className="tesla-slack-draft-box">
+                                                                <div className="tesla-slack-draft-header">
+                                                                    <i className="fab fa-slack"></i>
+                                                                    <span className="tesla-slack-draft-title">Draft Slack Message</span>
+                                                                </div>
+                                                                <div className="tesla-slack-draft-content">
+                                                                    <div className="tesla-slack-draft-fields">
+                                                                        <div><strong>To:</strong> {message.slackData.recipient}</div>
+                                                                        <div><strong>Channel:</strong> {message.slackData.channel}</div>
+                                                                    </div>
+                                                                    <div className="tesla-slack-draft-message">
+                                                                        {message.slackData.message}
+                                                                    </div>
+                                                                    {message.slackData.attachment && (
+                                                                        <div className="tesla-slack-draft-attachment">
+                                                                            <i className="fas fa-paperclip"></i>
+                                                                            <span>{message.slackData.attachment.fileName} ({message.slackData.attachment.fileSize})</span>
+                                                                        </div>
+                                                                    )}
+                                                                    {message.slackData.attachments && (
+                                                                        <div className="tesla-slack-draft-attachments">
+                                                                            <div className="tesla-slack-attachments-title">
+                                                                                <i className="fas fa-paperclip"></i>
+                                                                                Attachments ({message.slackData.attachments.length})
+                                                                            </div>
+                                                                            {message.slackData.attachments.map((attachment, index) => (
+                                                                                <div key={index} className="tesla-slack-draft-attachment-item">
+                                                                                    <i className={`fas ${attachment.fileType.includes('PowerPoint') ? 'fa-file-powerpoint' : 'fa-file-word'}`}></i>
+                                                                                    <div className="tesla-slack-attachment-info">
+                                                                                        <div className="tesla-slack-attachment-name">{attachment.fileName}</div>
+                                                                                        <div className="tesla-slack-attachment-meta">{attachment.fileType} • {attachment.fileSize}</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                {message.slackData.status !== 'sent' && (
+                                                                    <div className="tesla-slack-draft-actions">
+                                                                        <button 
+                                                                            className={`tesla-send-slack-btn ${message.slackData.status === 'sending' ? 'loading' : ''}`}
+                                                                            onClick={handleSendSlackMessage}
+                                                                            disabled={message.slackData.status === 'sending'}
+                                                                        >
+                                                                            {message.slackData.status === 'sending' ? (
+                                                                                <>
+                                                                                    <i className="fas fa-spinner fa-spin"></i>
+                                                                                    Sending...
+                                                                                </>
+                                                                            ) : (
+                                                                                <>
+                                                                                    <i className="fab fa-slack"></i>
+                                                                                    Send Slack Message
+                                                                                </>
+                                                                            )}
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                
+                                                        <div className="tesla-chat-timestamp">
+                                                            {formatTime(message.timestamp)}
                                                         </div>
-                                                    </div>
+                                                    </>
                                                 )}
-                                                
-                                                {/* Email Response Component */}
-                                                {message.hasEmailResponse && (
-                                                    <div className="tesla-email-response-box">
-                                                        <div className="tesla-email-response-header">
-                                                            <i className="fas fa-envelope"></i>
-                                                            <span className="tesla-email-response-title">Email Reply from Sarah Chen</span>
-                                                        </div>
-                                                        <div className="tesla-email-response-content">
-                                                            <div className="tesla-email-response-fields">
-                                                                <div><strong>From:</strong> {message.emailResponseData.from}</div>
-                                                                <div><strong>Subject:</strong> {message.emailResponseData.subject}</div>
-                                                            </div>
-                                                            <div className="tesla-email-response-preview">
-                                                                {message.emailResponseData.preview}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                
-                                {message.hasSlackDraft && (
-                                    <div className="tesla-slack-draft-box">
-                                        <div className="tesla-slack-draft-header">
-                                            <i className="fab fa-slack"></i>
-                                            <span className="tesla-slack-draft-title">Draft Slack Message</span>
-                                        </div>
-                                        <div className="tesla-slack-draft-content">
-                                            <div className="tesla-slack-draft-fields">
-                                                <div><strong>To:</strong> {message.slackData.recipient}</div>
-                                                <div><strong>Channel:</strong> {message.slackData.channel}</div>
-                                            </div>
-                                            <div className="tesla-slack-draft-message">
-                                                {message.slackData.message}
-                                            </div>
-                                            {message.slackData.attachment && (
-                                                <div className="tesla-slack-draft-attachment">
-                                                    <i className="fas fa-paperclip"></i>
-                                                    <span>{message.slackData.attachment.fileName} ({message.slackData.attachment.fileSize})</span>
-                                                </div>
-                                            )}
-                                            {message.slackData.attachments && (
-                                                <div className="tesla-slack-draft-attachments">
-                                                    <div className="tesla-slack-attachments-title">
-                                                        <i className="fas fa-paperclip"></i>
-                                                        Attachments ({message.slackData.attachments.length})
-                                                    </div>
-                                                    {message.slackData.attachments.map((attachment, index) => (
-                                                        <div key={index} className="tesla-slack-draft-attachment-item">
-                                                            <i className={`fas ${attachment.fileType.includes('PowerPoint') ? 'fa-file-powerpoint' : 'fa-file-word'}`}></i>
-                                                            <div className="tesla-slack-attachment-info">
-                                                                <div className="tesla-slack-attachment-name">{attachment.fileName}</div>
-                                                                <div className="tesla-slack-attachment-meta">{attachment.fileType} • {attachment.fileSize}</div>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                        {message.slackData.status !== 'sent' && (
-                                            <div className="tesla-slack-draft-actions">
-                                                <button 
-                                                    className={`tesla-send-slack-btn ${message.slackData.status === 'sending' ? 'loading' : ''}`}
-                                                    onClick={handleSendSlackMessage}
-                                                    disabled={message.slackData.status === 'sending'}
-                                                >
-                                                    {message.slackData.status === 'sending' ? (
-                                                        <>
-                                                            <i className="fas fa-spinner fa-spin"></i>
-                                                            Sending...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <i className="fab fa-slack"></i>
-                                                            Send Slack Message
-                                                        </>
-                                                    )}
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                                                
-                                                <div className="tesla-chat-timestamp">
-                                                    {formatTime(message.timestamp)}
-                                                </div>
                                             </div>
                                         ))}
                                         
@@ -1172,18 +1471,19 @@ Rohit`
                                         <div className="tesla-notion-section">
                                             <h2 className="tesla-notion-heading">📝 Meeting Notes & Transcript</h2>
                                             <div className="tesla-notion-text">
-                                                <p><strong>GTM Strategy Meeting with Manager Jeff</strong> - Today, 2:30 PM (45 minutes)</p>
+                                                <p><strong>Tesla GTM Deck Review with Manager James</strong> - Today, 9:37 AM CST (~11 minutes)</p>
                                                 <p>Key discussion points from the meeting:</p>
                                                 <ul>
-                                                    <li>Tesla's strategy to compete with Waymo in Austin's autonomous vehicle market</li>
-                                                    <li>Need strategic insights from Sarah Chen on Austin market dynamics</li>
-                                                    <li>Competitive positioning analysis against Waymo's current presence</li>
-                                                    <li>Go-to-market strategy should emphasize Tesla's unique advantages</li>
-                                                    <li><strong>Deadline:</strong> End of week for stakeholder review</li>
+                                                    <li>Feedback on Tesla GTM deck structure and content</li>
+                                                    <li>Need for more surgical competitive positioning against Waymo</li>
+                                                    <li>Slide 88 needs strategic POV rather than timeline approach</li>
+                                                    <li>Focus on Tesla's advantages vs Waymo's constraints (geo-fencing, L4 redundancies)</li>
+                                                    <li>Create executive summary for Mobility Ops team</li>
+                                                    <li>Get Sarah Chen's input on GTM levers that resonate</li>
                                                 </ul>
                                                 
                                                 <div className="tesla-notion-callout">
-                                                    🎯 <strong>Primary Action:</strong> Get strategic insights from Sarah Chen for competitive positioning against Waymo
+                                                    🎯 <strong>Primary Actions:</strong> Update slide 88 with competitive strategic positioning, reach out to Sarah Chen, create exec summary for Mobility Ops
                                                 </div>
                                             </div>
                                         </div>
