@@ -1057,31 +1057,38 @@ body {
 
 .tesla-chat-message.user {
     align-items: flex-end;
+    margin: 8px 0;
 }
 
 .tesla-chat-message.assistant {
     align-items: flex-start;
+    padding: 16px 0;
+    margin: 8px 0;
 }
 
 .tesla-chat-bubble {
     max-width: 80%;
-    padding: 16px 20px;
-    border-radius: 16px;
     font-size: 15px;
     line-height: 1.5;
     word-break: break-word;
 }
 
 .tesla-chat-bubble.user {
-    background: #37352f;
-    color: #fff;
+    background: #f4f4f4;
+    color: #37352f;
+    padding: 12px 16px;
+    border-radius: 18px;
+    max-width: 70%;
 }
 
 .tesla-chat-bubble.assistant {
-    background: #fff;
+    background: transparent;
     color: #37352f;
-    border: 1px solid #ececec;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 0;
+    max-width: 100%;
 }
 
 .tesla-chat-timestamp {
@@ -2934,131 +2941,147 @@ body {
 
 /* Tesla Report Generation Component */
 .tesla-report-generation-box {
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 1px solid #0ea5e9;
+    background: white;
+    border: 1px solid #e5e5e5;
     border-radius: 8px;
-    margin: 10px 0;
-    overflow: hidden;
+    padding: 16px;
+    margin: 12px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.tesla-report-generation-box:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 .tesla-report-generation-header {
-    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-    color: white;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid #0284c7;
-}
-
-.tesla-report-generation-header i {
-    font-size: 16px;
-}
-
-.tesla-report-generation-title {
-    font-weight: 600;
-    font-size: 14px;
-    flex: 1;
-}
-
-.tesla-report-status {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 8px;
-    border-radius: 12px;
-}
-
-.tesla-report-status.generating {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fbbf24;
-}
-
-.tesla-report-status.completed {
-    background: rgba(255, 255, 255, 0.2);
-    color: #10b981;
-}
-
-.tesla-report-generation-content {
-    padding: 16px;
-}
-
-.tesla-report-generation-info {
-    margin-bottom: 16px;
-}
-
-.tesla-report-title {
-    font-weight: 600;
-    color: #1e293b;
-    font-size: 15px;
-    margin-bottom: 6px;
-}
-
-.tesla-report-description {
-    color: #64748b;
-    font-size: 13px;
-    line-height: 1.4;
-}
-
-.tesla-report-file-info {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    padding: 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 12px;
 }
 
-.tesla-report-file-details {
+.tesla-report-icon-container {
+    width: 40px;
+    height: 40px;
+    background: #6b7280;
+    border-radius: 8px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+.tesla-report-icon-container i {
+    color: white;
+    font-size: 18px;
+}
+
+.tesla-report-header-content {
     flex: 1;
 }
 
-.tesla-report-file-details i {
-    font-size: 24px;
-    color: #2563eb;
-}
-
-.tesla-report-file-text {
-    flex: 1;
-}
-
-.tesla-report-file-name {
-    font-weight: 600;
-    color: #1e293b;
+.tesla-report-generation-title {
     font-size: 14px;
+    font-weight: 600;
+    color: #111827;
     margin-bottom: 2px;
 }
 
-.tesla-report-file-size {
-    color: #64748b;
+.tesla-report-status {
     font-size: 12px;
-}
-
-.tesla-report-open-btn {
-    background: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    color: #6b7280;
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
+.tesla-report-loading-wheel {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e5e5;
+    border-top: 2px solid #6b7280;
+    border-radius: 50%;
+    animation: tesla-spin 1s linear infinite;
+}
+
+.tesla-report-generation-content {
+    margin-top: 12px;
+}
+
+.tesla-report-file-card {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: #f9fafb;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.tesla-report-file-card:hover {
+    background: #f3f4f6;
+}
+
+.tesla-report-file-icon {
+    width: 32px;
+    height: 32px;
+    background: #6b7280;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+.tesla-report-file-icon i {
+    color: white;
+    font-size: 14px;
+}
+
+.tesla-report-file-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.tesla-report-file-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 2px;
+}
+
+.tesla-report-file-meta {
+    font-size: 11px;
+    color: #6b7280;
+    display: flex;
+    gap: 8px;
+}
+
+.tesla-report-open-btn {
+    padding: 6px 12px;
+    background: #374151;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
 .tesla-report-open-btn:hover {
-    background: #1d4ed8;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    background: #1f2937;
+}
+
+.tesla-report-description {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
 }
 
 /* Enhanced Slack Attachments Styling */
@@ -3261,183 +3284,5 @@ body {
 .tesla-report-progress-text {
     font-weight: 500;
     margin-left: 4px;
-}
-
-/* Enhanced Report Generation Box - Ultra Sleek Design */
-.tesla-report-generation-box {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 20px;
-    margin: 16px 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    transition: all 0.2s ease;
-}
-
-.tesla-report-generation-box:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-.tesla-report-generation-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-}
-
-.tesla-report-icon-container {
-    width: 40px;
-    height: 40px;
-    background: #2b579a;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.tesla-report-icon-container i {
-    font-size: 20px;
-    color: #ffffff;
-}
-
-.tesla-report-header-content {
-    flex: 1;
-    margin-left: 16px;
-}
-
-.tesla-report-generation-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1f2937;
-    margin: 0;
-}
-
-.tesla-report-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #6b7280;
-    margin-top: 4px;
-}
-
-.tesla-report-loading-wheel {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #e5e7eb;
-    border-top: 2px solid #2b579a;
-    border-radius: 50%;
-    animation: tesla-spin 1s linear infinite;
-    flex-shrink: 0;
-}
-
-.tesla-report-generation-content {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.tesla-report-file-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.tesla-report-file-card:hover {
-    background: #f3f4f6;
-}
-
-.tesla-report-file-icon {
-    width: 32px;
-    height: 32px;
-    background: #2b579a;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.tesla-report-file-icon i {
-    font-size: 16px;
-    color: #ffffff;
-}
-
-.tesla-report-file-details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.tesla-report-file-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.tesla-report-file-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: #6b7280;
-}
-
-.tesla-report-open-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: #2b579a;
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.tesla-report-open-btn:hover {
-    background: #1e3a5f;
-}
-
-.tesla-report-description {
-    font-size: 13px;
-    color: #6b7280;
-    line-height: 1.4;
-}
-
-/* ChatGPT-style Chat Bubbles */
-.tesla-chat-bubble {
-    max-width: 80%;
-    padding: 12px 16px;
-    border-radius: 16px;
-    font-size: 15px;
-    line-height: 1.5;
-    word-break: break-word;
-    margin-bottom: 4px;
-}
-
-.tesla-chat-bubble.user {
-    background: #f3f3f3;
-    color: #1f2937;
-    border: none;
-    box-shadow: none;
-}
-
-.tesla-chat-bubble.assistant {
-    background: transparent;
-    color: #1f2937;
-    border: none;
-    box-shadow: none;
-    padding: 0;
 }
   

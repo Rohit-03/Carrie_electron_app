@@ -535,50 +535,46 @@ Sarah`
                 // Mark second task as completed
                 setCompletedTasks(prev => new Set([...prev, 2]));
                 
+                // Actually open the PowerPoint file first
+                const filePath = '/Users/wafichoudhury/Downloads/BCG Presentation.pptx';
+                const { shell } = require('electron');
+
+                // Use Electron's shell API to open with default application
+                if (window.electronAPI && window.electronAPI.shell) {
+                    // Modern Electron way
+                    
+                    shell.openItem(filePath);
+                } else if (typeof require !== 'undefined') {
+                    // Direct Electron access
+                    shell.openPath(filePath);
+                } else {
+                    // Fallback for browsers - try to open the file
+                    try {
+                        window.open(`file://${filePath}`, '_blank');
+                    } catch (error) {
+                        // If file opening fails, show alert
+                        alert(`Opening ${filePath.split('/').pop()} in Microsoft PowerPoint...`);
+                    }
+                }
+                
                 const openingMessage = {
                     id: messages.length + 1,
-                    text: "Opening Tesla_GTM_Austin_Strategy.pptx and applying the strategic updates to slide 88... I've marked 'Update Slide 88 - Strategic POV' as completed.",
+                    text: "Opening PowerPoint and applying strategic updates to slide 88... Task completed!",
                     sender: 'assistant',
                     timestamp: new Date()
                 };
                 
                 addStreamingMessage(openingMessage, () => {
-                    // Only after opening message streaming completes, show completion message
-                    const completedMessage = {
+                    // Only after opening message streams, show format selection
+                    const formatMessage = {
                         id: messages.length + 2,
-                        text: "PowerPoint presentation updated successfully! Sarah's strategic insights have been integrated into slide 88. Your local deployment plan now emphasizes competitive positioning against Waymo rather than just timeline.",
+                        text: "I need to generate a strategic report document for your internal alignment team. What format would you prefer?\n\n• Word Document (recommended)\n• PowerPoint Presentation\n• PDF Report\n\nPlease respond with your preference (or I'll default to Word format):",
                         sender: 'assistant',
-                        timestamp: new Date()
+                        timestamp: new Date(),
+                        needsFormatSelection: true
                     };
-                    
-                    addStreamingMessage(completedMessage, () => {
-                        // Actually open the PowerPoint file after completion message streams
-                        const filePath = '/Users/wafichoudhury/Downloads/BCG Presentation.pptx';
-                        
-                        // Use Electron's shell API to open with default application
-                        if (window.electronAPI && window.electronAPI.shell) {
-                            // Modern Electron way
-                            window.electronAPI.shell.openPath(filePath);
-                        } else if (typeof require !== 'undefined') {
-                            // Direct Electron access
-                            const { shell } = require('electron');
-                            shell.openPath(filePath);
-                        } else {
-                            // Fallback for browsers
-                            window.open(`file://${filePath}`, '_blank');
-                        }
-                        
-                        // Only after PowerPoint completion message streams, show format selection
-                        const formatMessage = {
-                            id: messages.length + 3,
-                            text: "I need to generate a strategic report document for your internal alignment team. What format would you prefer?\n\n• Word Document (recommended)\n• PowerPoint Presentation\n• PDF Report\n\nPlease respond with your preference (or I'll default to Word format):",
-                            sender: 'assistant',
-                            timestamp: new Date(),
-                            needsFormatSelection: true
-                        };
-                        addStreamingMessage(formatMessage);
-                        setDocumentFormatStep('asked');
-                    });
+                    addStreamingMessage(formatMessage);
+                    setDocumentFormatStep('asked');
                 });
             };
 
@@ -619,25 +615,24 @@ Sarah`
                     setTimeout(() => {
                         setDocumentGenerationStep('completed');
                         
-                        // Completed message
-                        const completedMessage = {
-                            id: Date.now(),
-                            text: "Strategic report completed! I've created 'Tesla_vs_Waymo_Strategic_Analysis.docx' incorporating Sarah's insights.",
-                            sender: 'assistant',
-                            timestamp: new Date(),
-                            hasReportGeneration: true,
-                            reportData: {
-                                status: 'completed',
-                                fileName: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
-                                title: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
-                                description: 'Strategic comparison analysis incorporating Austin market positioning and competitive advantages',
-                                size: '2.8 MB'
-                            }
-                        };
+                        // Update the existing message to completed status
+                        setMessages(prev => prev.map(msg => 
+                            msg.hasReportGeneration && msg.reportData.status === 'generating' ? {
+                                ...msg,
+                                reportData: {
+                                    status: 'completed',
+                                    fileName: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
+                                    title: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
+                                    description: 'Strategic comparison analysis incorporating Austin market positioning and competitive advantages',
+                                    size: '2.8 MB'
+                                }
+                            } : msg
+                        ));
                         
-                        addMessageWithUI(completedMessage, () => {
+                        // Call onComplete callback after a brief delay (no additional message here)
+                        setTimeout(() => {
                             if (onComplete) onComplete();
-                        });
+                        }, 1000);
                     }, 8000); // 8 seconds total generation time
                 });
             };
@@ -879,7 +874,7 @@ Rohit`
                             slackData: {
                                 recipient: 'Manager Jeff',
                                 channel: '#tesla-gtm-project',
-                                message: `Hi Jeff,\n\nGreat progress update on the Tesla GTM strategy project:\n\n✅ **Completed Deliverables:**\n• Updated Tesla GTM presentation with competitive positioning against Waymo\n• Strategic analysis report incorporating Sarah Chen's market insights\n• Slide 88 reframed from timeline to strategic competitive advantages\n• Executive summary highlighting Tesla's edge and GTM wedge\n\n📊 **Key Strategic Improvements:**\n• Focus on economic scalability vs Waymo's cash burn model\n• Emphasis on Gigafactory Texas as local ecosystem advantage\n• Positioning of software flexibility vs hardware constraints\n\n📎 **Documents Ready for Review:**\n• Tesla_GTM_Austin_Strategy.pptx (4.1 MB)\n• Tesla_vs_Waymo_Strategic_Analysis.docx (2.8 MB)\n\nAll action items from our meeting have been addressed. Ready for your review and stakeholder presentation.\n\nBest,\nRohit`,
+                                message: `Hi Jeff,\n\n Checked in with Sarah and made those updates we talked about, files attached below. Let me know if you have any additional thoughts.\n\nBest,\nRohit`,
                                 attachments: [
                                     {
                                         fileName: 'Tesla_GTM_Austin_Strategy.pptx',
@@ -1171,8 +1166,13 @@ Rohit`
                                                 {/* Tool Connection Component */}
                                                 {message.isConnecting && (
                                                     <div className="tesla-tool-connection">
-                                                        <div className="tesla-tool-icon slack">
-                                                            <i className="fab fa-slack"></i>
+                                                        <div className={`tesla-tool-icon ${message.toolName.toLowerCase()}`}>
+                                                            {message.toolName === 'Slack' && (
+                                                                <img src="./Carrie_electron_app/slack_icon.png" width="16" height="16" alt="Slack" />
+                                                            )}
+                                                            {message.toolName === 'Gmail' && (
+                                                                <img src="./Carrie_electron_app/gmail_icon.png" width="16" height="16" alt="Gmail" />
+                                                            )}
                                                         </div>
                                                         <div className="tesla-tool-spinner">
                                                             <i className="fas fa-spinner fa-spin"></i>
@@ -1283,7 +1283,7 @@ Rohit`
                                                                 <div className="tesla-report-generation-header">
                                                                     <div style={{display: 'flex', alignItems: 'center'}}>
                                                                         <div className="tesla-report-icon-container">
-                                                                            <i className="fas fa-file-word"></i>
+                                                                            <img src="./Carrie_electron_app/word_icon.jpeg" width="24" height="24" alt="Word" />
                                                                         </div>
                                                                         <div className="tesla-report-header-content">
                                                                             <div className="tesla-report-generation-title">Document Generation</div>
@@ -1307,7 +1307,7 @@ Rohit`
                                                                     <div className="tesla-report-generation-content">
                                                                         <div className="tesla-report-file-card">
                                                                             <div className="tesla-report-file-icon">
-                                                                                <i className="fas fa-file-word"></i>
+                                                                                <img src="/Users/wafichoudhury/Desktop/desktopapp/Carrie_electron_app/slack_icon.png" width="20" height="20" alt="Word" />
                                                                             </div>
                                                                             <div className="tesla-report-file-details">
                                                                                 <div className="tesla-report-file-name">{message.reportData.fileName}</div>
@@ -1376,7 +1376,11 @@ Rohit`
                                                                             </div>
                                                                             {message.slackData.attachments.map((attachment, index) => (
                                                                                 <div key={index} className="tesla-slack-draft-attachment-item">
-                                                                                    <i className={`fas ${attachment.fileType.includes('PowerPoint') ? 'fa-file-powerpoint' : 'fa-file-word'}`}></i>
+                                                                                    {attachment.fileType.includes('PowerPoint') ? (
+                                                                                        <img src="https://img.icons8.com/color/48/000000/microsoft-powerpoint-2019--v1.png" width="16" height="16" alt="PowerPoint" />
+                                                                                    ) : (
+                                                                                        <img src="/Users/wafichoudhury/Desktop/desktopapp/Carrie_electron_app/slack_icon.png" width="16" height="16" alt="Word" />
+                                                                                    )}
                                                                                     <div className="tesla-slack-attachment-info">
                                                                                         <div className="tesla-slack-attachment-name">{attachment.fileName}</div>
                                                                                         <div className="tesla-slack-attachment-meta">{attachment.fileType} • {attachment.fileSize}</div>
