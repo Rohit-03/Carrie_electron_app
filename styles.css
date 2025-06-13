@@ -766,9 +766,9 @@ body {
 }
 
 .tesla-chat-toggle {
-    background: #f7f6f3;
-    color: #888;
-    border: 1px solid #ececec;
+    background: transparent;
+    color: #64748b;
+    border: none;
     border-radius: 8px;
     width: 36px;
     height: 36px;
@@ -777,12 +777,13 @@ body {
     justify-content: center;
     cursor: pointer;
     font-size: 18px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    padding: 8px 12px;
 }
 
 .tesla-chat-toggle:hover {
-    background: #ececec;
-    color: #37352f;
+    background: rgba(255, 255, 255, 0.5);
+    color: #475569;
 }
 
 .tesla-chat-content {
@@ -893,8 +894,33 @@ body {
 }
 
 .tesla-task-item-priority.low {
-    background: #d4edda;
-    color: #155724;
+    background: #f0f9ff;
+    color: #0284c7;
+    border: 1px solid #bae6ff;
+}
+
+/* Task removing animation */
+.tesla-task-item.removing {
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.5s ease-out;
+    pointer-events: none;
+}
+
+/* Tasks complete message */
+.tesla-tasks-complete-message {
+    text-align: center;
+    color: #888;
+    font-size: 12px;
+    padding: 20px 16px;
+    font-style: italic;
+    opacity: 0;
+    animation: tesla-fade-in 0.5s ease-out 0.3s forwards;
+}
+
+@keyframes tesla-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* Tesla Loading Animation Styles */
@@ -3284,5 +3310,127 @@ body {
 .tesla-report-progress-text {
     font-weight: 500;
     margin-left: 4px;
+}
+
+/* Updated transcript styles for cleaner, more spaced out design */
+.tesla-transcript-content {
+    background: #fafbfc;
+    border-radius: 12px;
+    padding: 0;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.transcript-conversation {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.transcript-conversation::-webkit-scrollbar {
+    width: 6px;
+}
+
+.transcript-conversation::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.transcript-conversation::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.transcript-conversation::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.transcript-message {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+.transcript-message:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-color: #e2e8f0;
+}
+
+.transcript-message:last-child {
+    margin-bottom: 0;
+}
+
+.transcript-speaker {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+}
+
+.transcript-speaker::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.transcript-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #1e293b;
+    margin: 0;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+/* Different colors for different speakers */
+.transcript-message:nth-child(odd) .transcript-speaker::before {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.transcript-message:nth-child(even) .transcript-speaker::before {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* Remove old transcript styles that are no longer needed */
+.tesla-meeting-transcript ul,
+.tesla-meeting-actions ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tesla-meeting-transcript li,
+.tesla-meeting-actions li {
+    padding: 12px 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.5;
+    position: relative;
+    padding-left: 16px;
+}
+
+.tesla-meeting-transcript li:before {
+    content: "•";
+    color: #667eea;
+    font-weight: bold;
+    position: absolute;
+    left: 6px;
 }
   
