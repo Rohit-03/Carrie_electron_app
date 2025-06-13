@@ -74,7 +74,7 @@
                         <div class="notion-todo-title">To do</div>
                         <div class="notion-todo-list">
                             <div class="notion-todo-card priority-glow">
-                                <div class="notion-todo-card-title">Slide Updates - Manager Jeff</div>
+                                <div class="notion-todo-card-title">Slide Updates - Manager James</div>
                                 <div class="notion-todo-card-desc">Refactor slides on Tesla project</div>
                                 <button class="todo-start-btn">Start</button>
                             </div>
@@ -187,12 +187,12 @@
                     setTimeout(() => {
                         const emailDraftMessage = {
                             id: 2,
-                            text: "I've drafted an email to Sarah Chen requesting the Q3 financial sheet:",
+                            text: "I've drafted an email to Sarah requesting the Q3 financial sheet:",
                             sender: 'assistant',
                             timestamp: new Date(),
                             hasEmailDraft: true,
                             emailData: {
-                                to: 'sarah.chen@company.com',
+                                to: 'sarah@carrieai.com',
                                 subject: 'Request for Q3 Financial Sheet - Tesla Earnings Presentation',
                                 body: `Hi Sarah,
 
@@ -225,7 +225,7 @@ Rohit`
                 // Add message about sending
                 const sendingMessage = {
                     id: messages.length + 1,
-                    text: "Sending email to Sarah Chen...",
+                    text: "Sending email to Sarah...",
                     sender: 'assistant',
                     timestamp: new Date()
                 };
@@ -251,13 +251,13 @@ Rohit`
                         
                         const receivedMessage = {
                             id: messages.length + 3,
-                            text: "📧 Great news! Sarah Chen just replied with the Q3 financial sheet:",
+                            text: "📧 Great news! Sarah just replied with the Q3 financial sheet:",
                             sender: 'assistant',
                             timestamp: new Date(),
                             hasReceivedFile: true,
                             fileData: {
                                 name: 'Tesla_Q3_Financial_Sheet.xlsx',
-                                sender: 'Sarah Chen',
+                                sender: 'Sarah',
                                 size: '2.3 MB'
                             }
                         };
@@ -293,7 +293,7 @@ Rohit`
                                     timestamp: new Date(),
                                     hasPowerpointSuggestion: true,
                                     powerpointData: {
-                                        fileName: 'Tesla_Earnings_Presentation.pptx',
+                                        fileName: '06/12/25_Tesla_GTM_Austin_v0.1.pptx',
                                         suggestedEdits: [
                                             'Update Q3 revenue figures on slide 3',
                                             'Refresh profit margin charts on slide 7',
@@ -315,7 +315,7 @@ Rohit`
                 
                 const openingMessage = {
                     id: messages.length + 1,
-                    text: "🎯 Opening Tesla_Earnings_Presentation.pptx and applying the revenue updates... I've marked 'Update Revenue Projections' as completed.",
+                    text: "🎯 Opening 06/12/25_Tesla_GTM_Austin_v0.1.pptx and applying the revenue updates... I've marked 'Update Revenue Projections' as completed.",
                     sender: 'assistant',
                     timestamp: new Date()
                 };
@@ -341,7 +341,7 @@ Rohit`
                 {
                     id: 1,
                     title: "Request Q3 Financial Sheet",
-                    description: "Email Sarah Chen for latest Q3 financial data for Tesla presentation",
+                    description: "Email Sarah for latest Q3 financial data for Tesla presentation",
                     priority: "high"
                 },
                 {
@@ -473,7 +473,7 @@ Rohit`
                                 <div className="tesla-action-prompt">
                                     <div className="tesla-action-title">🎯 Priority Action Identified</div>
                                     <div className="tesla-action-text">
-                                        Your manager mentioned you need the Q3 financial sheet from Sarah Chen for your Tesla presentation. This seems to be blocking your progress.
+                                        Your manager mentioned you need the Q3 financial sheet from Sarah for your Tesla presentation. This seems to be blocking your progress.
                                         <br/><br/>
                                         Would you like me to draft an email to Sarah requesting this information?
                                     </div>

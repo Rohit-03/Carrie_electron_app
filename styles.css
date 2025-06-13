@@ -2985,6 +2985,7 @@ body {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
+    gap: 16px;  /* Added gap between elements */
 }
 
 .tesla-report-icon-container {
@@ -3029,6 +3030,7 @@ body {
     border-top: 2px solid #6b7280;
     border-radius: 50%;
     animation: tesla-spin 1s linear infinite;
+    margin-left: 8px;  /* Added margin to the wheel */
 }
 
 .tesla-report-generation-content {
@@ -3432,5 +3434,92 @@ body {
     font-weight: bold;
     position: absolute;
     left: 6px;
+}
+
+/* Word Document Loading and Opened Styles */
+.tesla-word-loading-box {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin: 12px 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.tesla-word-loading-header {
+    background: #e8f0fe;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+}
+
+.tesla-word-icon {
+    margin-right: 12px;
+}
+
+.tesla-word-title {
+    font-weight: 500;
+    color: #202124;
+}
+
+.tesla-word-loading-content {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.tesla-word-loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #4285f4;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 12px;
+}
+
+.tesla-word-loading-text {
+    color: #202124;
+    font-size: 14px;
+}
+
+.tesla-word-opened-box {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin: 12px 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.tesla-word-opened-header {
+    background: #e8f0fe;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+}
+
+.tesla-word-opened-content {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.tesla-word-opened-checkmark {
+    color: #34a853;
+    font-size: 18px;
+    margin-right: 12px;
+}
+
+.tesla-word-opened-text {
+    color: #202124;
+    font-size: 14px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
   

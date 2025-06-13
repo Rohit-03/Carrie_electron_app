@@ -660,6 +660,42 @@
             height: 100%;
             object-fit: contain;
         }
+
+        /* Add notification badge CSS */
+        .tesla-notification-badge {
+            position: fixed;
+            top: 32px;
+            right: 32px;
+            min-width: 260px;
+            max-width: 340px;
+            background: rgba(255,255,255,0.92);
+            color: #222;
+            padding: 16px 26px 16px 18px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.13), 0 1.5px 4px rgba(0,0,0,0.07);
+            z-index: 9999;
+            opacity: 0.98;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(200,200,200,0.13);
+            transition: opacity 0.3s;
+        }
+        .tesla-notification-icon {
+            font-size: 20px;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .tesla-notification-text {
+            flex: 1;
+            font-size: 16px;
+            color: #222;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
     </style>
 </head>
 <body>
@@ -725,7 +761,7 @@
                     <div class="notion-todo-list">
                         <div class="notion-todo-card">
                             <div class="notion-todo-card-new">new</div>
-                            <div class="notion-todo-card-title">Slide Updates - Manager Jeff</div>
+                            <div class="notion-todo-card-title">Slide Updates - Manager James</div>
                             <div class="notion-todo-card-desc">Refactor slides on Tesla project</div>
                             <button class="todo-start-btn" onclick="document.querySelector('.project-item').click()">Start</button>
                         </div>
@@ -815,6 +851,9 @@
             const messagesEndRef = useRef(null);
             const inputRef = useRef(null);
 
+            // Add state for Word completion
+            const [wordCompleted, setWordCompleted] = useState(false);
+
             // Add state for PowerPoint completion
             const [powerpointCompleted, setPowerpointCompleted] = useState(false);
 
@@ -831,6 +870,9 @@
             const [clearingTasks, setClearingTasks] = useState(false);
             const [tasksToRemove, setTasksToRemove] = useState([]);
             const [showTasksComplete, setShowTasksComplete] = useState(false);
+
+            // Add notification state
+            const [notification, setNotification] = useState(null);
 
             // Streaming text utility functions
             const streamText = (text, messageId, onComplete = null, speed = 4) => {
@@ -1024,7 +1066,7 @@
                         id: 1,
                         text: `**Looks like your manager wants Slide 88 to hit harder on strategic positioning—especially vs. Waymo.**
 
-**First step:** Let's get GTM insights from your network. I recommend reaching out to @SarahChen based on her Miami activation experience.
+**First step:** Let's get GTM insights from your network. I recommend reaching out to @Sarah based on her Miami activation experience.
 
 **Shall I draft the email?**`,
                         sender: 'assistant',
@@ -1061,8 +1103,6 @@
             const handleSendEmail = () => {
                 setEmailStep('sending');
                 
-                // Remove the "Sending email to Sarah Chen..." message
-                // Just go straight to sent status
                 
                 setTimeout(() => {
                     setEmailStep('sent');
@@ -1072,7 +1112,7 @@
                     
                     const sentMessage = {
                         id: messages.length + 2,
-                        text: "**Email sent successfully!** I've marked 'Email Sarah Chen for GTM Insights' as completed. Sarah should receive it shortly and will likely respond with her strategic analysis.",
+                        text: "**Email sent successfully!** I've marked 'Email Sarah for GTM Insights' as completed. Sarah should receive it shortly and will likely respond with her strategic analysis.",
                         sender: 'assistant',
                         timestamp: new Date(),
                         hasBreakline: true
@@ -1080,18 +1120,23 @@
                     
                     // Use streaming message with tool and proper completion callback
                     addStreamingMessageWithTool(sentMessage, 'Gmail', () => {
+                        // Show in-app notification after 10 seconds
+                        setTimeout(() => {
+                            setNotification('Sarah just replied to your email.');
+                            setTimeout(() => setNotification(null), 4000); // Dismiss after 2 seconds
+                        }, 60000);
                         // Longer pause before showing received file (increased from 2000 to 4000)
                     setTimeout(() => {
                         setEmailStep('received');
                         
                         const receivedMessage = {
                             id: messages.length + 3,
-                                text: "**Great news!** Sarah Chen just replied with her strategic recommendations:",
+                                text: "**Great news!** Sarah just replied with her strategic recommendations:",
                             sender: 'assistant',
                             timestamp: new Date(),
                             hasEmailResponse: true,
                             emailResponseData: {
-                                from: 'Sarah Chen',
+                                from: 'Sarah',
                                     subject: 'Re: Input needed on GTM strategy slide - Tesla Austin deck',
                                 preview: `Hi Rohit,
 
@@ -1119,12 +1164,12 @@ Sarah`
                                 // Remove the context message entirely and go straight to PowerPoint suggestion
                                 const powerpointMessage = {
                                 id: messages.length + 4,
-                                    text: "**Next Step: Update PowerPoint** Based on Sarah's email and Manager Jeff's instructions, I recommend the following edits in PowerPoint:",
+                                    text: "**Next Step: Update PowerPoint** Based on Sarah's email and Manager James's instructions, I recommend the following edits in PowerPoint:",
                                     sender: 'assistant',
                                     timestamp: new Date(),
                                     hasPowerpointSuggestion: true,
                                     powerpointData: {
-                                        fileName: 'Tesla_GTM_Austin_Strategy.pptx',
+                                        fileName: '2025_Tesla_GTM_Austin_v0.1.pptx',
                                         suggestedEdits: [
                                             '**Reframe slide 88** from timeline to strategic competitive positioning',
                                             '**Lead with economic scalability advantage** over Waymo\'s cash burn model',
@@ -1189,13 +1234,13 @@ Sarah`
                     };
                     
                         addStreamingMessage(successMessage, () => {
-                            // Mark task 5 (Finalize and Send Update to Manager Jeff) as completed when Slack message is sent
+                            // Mark task 5 (Finalize and Send Update to Manager James) as completed when Slack message is sent
                     setTimeout(() => {
                         setCompletedTasks(prev => new Set([...prev, 5]));
                         
                         const completionMessage = {
                                     id: messages.length + 3,
-                            text: "I've marked 'Finalize and Send Update to Manager Jeff' as completed.\n\n🎉 **Great work!** You've successfully coordinated with Sarah Chen, updated your presentation with strategic insights, generated a comprehensive strategic report, and delivered all materials to your manager. **The Tesla GTM strategy is now ready for stakeholder review.**",
+                            text: "I've marked 'Finalize and Send Update to Manager James' as completed.\n\n🎉 **Great work!** You've successfully coordinated with Sarah, updated your presentation with strategic insights, generated a comprehensive strategic report, and delivered all materials to your manager. **The Tesla GTM strategy is now ready for stakeholder review.**",
                             sender: 'assistant',
                             timestamp: new Date()
                         };
@@ -1216,7 +1261,7 @@ Sarah`
                 // setCompletedTasks(prev => new Set([...prev, 2])); // REMOVED
                 
                 // Actually open the PowerPoint file first
-                const filePath = '/Users/wafichoudhury/Downloads/BCG Presentation.pptx';
+                const filePath = '/Users/wafichoudhury/Downloads/2025_Tesla_GTM_Austin_v0.1.pptx';
                 const { shell } = require('electron');
 
                 // Use Electron's shell API to open with default application
@@ -1261,13 +1306,44 @@ Sarah`
             };
 
             const handleOpenWordDocument = (fileName) => {
-                // Simulate opening the Word document
-                        if (window.electronAPI && window.electronAPI.shell) {
-                    // For Electron apps
-                    window.electronAPI.shell.openPath(`/Users/wafichoudhury/Downloads/${fileName}`);
-                        } else {
-                    // For browsers, show a notification
-                    alert(`Opening ${fileName} in Microsoft Word...`);
+                const filePath = '/Users/wafichoudhury/Desktop/Tesla_AV_Report.docx';
+                const { shell } = require('electron');
+
+                // Add loading message
+                const openingMessage = {
+                    id: messages.length + 1,
+                    text: "",
+                    sender: 'assistant',
+                    timestamp: new Date(),
+                    hasWordLoading: true,
+                    hasBreakline: true
+                };
+                
+                addStreamingMessage(openingMessage, () => {
+                    // After 2 seconds, change to "Opened"
+                    setTimeout(() => {
+                        setMessages(prev => prev.map(msg => 
+                            msg.hasWordLoading ? {
+                                ...msg,
+                                hasWordOpened: true,
+                                hasWordLoading: false
+                            } : msg
+                        ));
+                        setWordCompleted(true);
+                    }, 2000);
+                });
+
+                // Use Electron's shell API to open with default application
+                if (window.electronAPI && window.electronAPI.shell) {
+                    shell.openItem(filePath);
+                } else if (typeof require !== 'undefined') {
+                    shell.openPath(filePath);
+                } else {
+                    try {
+                        window.open(`file://${filePath}`, '_blank');
+                    } catch (error) {
+                        alert(`Opening ${filePath.split('/').pop()} in Microsoft Word...`);
+                    }
                 }
             };
 
@@ -1346,8 +1422,8 @@ Sarah`
                                         ...msg,
                                         reportData: {
                                             status: 'completed',
-                                            fileName: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
-                                    title: 'Tesla_vs_Waymo_Strategic_Analysis.docx',
+                                            fileName: 'Tesla_AV_Report.docx',
+                                    title: 'Tesla_AV_Report.docx',
                                     description: 'Strategic comparison analysis incorporating Austin market positioning and competitive advantages',
                                     size: '2.8 MB'
                                         }
@@ -1388,7 +1464,7 @@ Sarah`
             const tasks = [
                 {
                     id: 1,
-                    title: "Email Sarah Chen for GTM Insights",
+                    title: "Email Sarah for GTM Insights",
                     description: "Get Sarah's input on GTM levers that resonate, leveraging her Miami market activation experience",
                     priority: "high"
                 },
@@ -1406,7 +1482,7 @@ Sarah`
                 },
                 {
                     id: 5,
-                    title: "Finalize and Send Update to Manager Jeff",
+                    title: "Finalize and Send Update to Manager James",
                     priority: "medium"
                 }
             ];
@@ -1450,7 +1526,7 @@ Sarah`
                     setTimeout(() => {
                         const managerUpdatePrompt = {
                             id: messages.length + 2,
-                            text: "**Perfect!** Would you like me to send an update to Manager Jeff about the completed deliverables? I can draft a message highlighting:\n\n• **Updated Tesla GTM presentation** with competitive positioning\n• **Strategic analysis report** with Sarah's insights\n• **Progress on all action items** from your meeting\n\n**Should I prepare this update for Jeff?**",
+                            text: "**Perfect!** Would you like me to send an update to Manager James about the completed deliverables? I can draft a message highlighting:\n\n• **Updated Tesla GTM presentation** with competitive positioning\n• **Strategic analysis report** with Sarah's insights\n• **Progress on all action items** from your meeting\n\n**Should I prepare this update for James?**",
                             sender: 'assistant',
                             timestamp: new Date(),
                             needsManagerUpdate: true
@@ -1524,7 +1600,7 @@ Sarah`
                     // Show loading message for manager update draft
                     const loadingMessage = {
                         id: messages.length + 2,
-                        text: "**Crafting an update message for Manager Jeff...**",
+                        text: "**Crafting an update message for Manager James...**",
                         sender: 'assistant',
                         timestamp: new Date(),
                         isLoadingCraft: true
@@ -1537,17 +1613,17 @@ Sarah`
                         
                         const managerUpdateMessage = {
                             id: messages.length + 2,
-                            text: "I've drafted an update message for Manager Jeff with all the completed deliverables:",
+                            text: "I've drafted an update message for Manager James with all the completed deliverables:",
                             sender: 'assistant',
                             timestamp: new Date(),
                             hasSlackDraft: true,
                             slackData: {
-                                recipient: 'Manager Jeff',
+                                recipient: 'Manager James',
                                 channel: '#tesla-gtm-project',
-                                message: `Hi Jeff,\n\nChecked in with Sarah and made those updates we talked about, files attached below. Let me know if you have any additional thoughts.`,
+                                message: `Hi James,\n\nChecked in with Sarah and made those updates we talked about, files attached below. Let me know if you have any additional thoughts.`,
                                 attachments: [
                                     {
-                                        fileName: 'Tesla_GTM_Austin_Strategy.pptx',
+                                        fileName: '2025_Tesla_GTM_Austin_v0.1.pptx',
                                         fileType: 'PowerPoint Presentation',
                                         fileSize: '4.1 MB'
                                     },
@@ -1647,17 +1723,17 @@ Sarah`
                     
                     const emailDraftMessage = {
                         id: Date.now(), // Use timestamp for unique ID
-                        text: "I've drafted an email to Sarah Chen requesting strategic insights for our Tesla go-to-market plan:",
+                        text: "I've drafted an email to Sarah requesting strategic insights for our Tesla go-to-market plan:",
                         sender: 'assistant',
                         timestamp: new Date(),
                         hasEmailDraft: true,
                         emailData: {
-                            to: 'sarah.chen@company.com',
+                            to: 'Sarah@carrieai.com',
                             subject: 'Input needed on GTM strategy slide - Tesla Austin deck',
                             body: '' // Start with empty body for typing effect
                         },
                         originalEmailData: {
-                            to: 'sarah.chen@company.com',
+                            to: 'Sarah@carrieai.com',
                             subject: 'Input needed on GTM strategy slide - Tesla Austin deck',
                             body: `Hi Sarah,
 
@@ -1748,6 +1824,12 @@ Rohit`
 
             return (
                 <div className="tesla-chat-container">
+                    {currentView === 'workspace' && notification && (
+                        <div className="tesla-notification-badge">
+                            <span className="tesla-notification-icon">🔔</span>
+                            <span className="tesla-notification-text">{notification}</span>
+                        </div>
+                    )}
                     <div className="tesla-chat-header">
                         <div className="tesla-chat-title">Tesla Earnings Project</div>
                         
@@ -1959,7 +2041,7 @@ Rohit`
                                                                 
                                                                 <div className="transcript-message">
                                                                     <div className="transcript-speaker">James</div>
-                                                                    <div className="transcript-text">Also—have you looped in Sarah Chen yet?</div>
+                                                                    <div className="transcript-text">Also—have you looped in Sarah yet?</div>
                                                                 </div>
                                                                 
                                                                 <div className="transcript-message">
@@ -2003,7 +2085,7 @@ Rohit`
                                                         <h4>Action Items Identified</h4>
                                                         <ul>
                                                             <li>✅ Extract action items from meeting (completed)</li>
-                                                            <li>📧 Email Sarah Chen for GTM strategy insights</li>
+                                                            <li>📧 Email Sarah for GTM strategy insights</li>
                                                             <li>📊 Update slide 88 with competitive strategic positioning</li>
                                                             <li>📋 Create executive summary for Mobility Ops team</li>
                                                             <li>🔍 Research Waymo's deployment constraints and gaps</li>
@@ -2213,6 +2295,38 @@ Rohit`
                                                     </div>
                                                 )}
                                                 
+                                                {/* Word Document Loading Component */}
+                                                {message.hasWordLoading && (
+                                                    <div className="tesla-word-loading-box">
+                                                        <div className="tesla-word-loading-header">
+                                                            <div className="tesla-word-icon">
+                                                                <img src="./word_icon.png" alt="Word" width="24" height="24" />
+                                                            </div>
+                                                            <span className="tesla-word-title">Word</span>
+                                                        </div>
+                                                        <div className="tesla-word-loading-content">
+                                                            <div className="tesla-word-loading-spinner"></div>
+                                                            <div className="tesla-word-loading-text">Opening Word document...</div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Word Document Opened Component */}
+                                                {message.hasWordOpened && (
+                                                    <div className="tesla-word-opened-box">
+                                                        <div className="tesla-word-opened-header">
+                                                            <div className="tesla-word-icon">
+                                                                <img src="./word_icon.png" alt="Word" width="24" height="24" />
+                                                            </div>
+                                                            <span className="tesla-word-title">Word</span>
+                                                        </div>
+                                                        <div className="tesla-word-opened-content">
+                                                            <div className="tesla-word-opened-checkmark">✓</div>
+                                                            <div className="tesla-word-opened-text">Opened</div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                
                                                 {/* Email Response Component */}
                                                 {message.hasEmailResponse && (
                                                     <div className="tesla-email-response-box">
@@ -2220,7 +2334,7 @@ Rohit`
                                                             <div className="tesla-email-draft-icon">
                                                                 <img src="gmail_icon.png" alt="Gmail" width="24" height="24" />
                                                             </div>
-                                                            <span className="tesla-email-response-title">Reply from Sarah Chen</span>
+                                                            <span className="tesla-email-response-title">Reply from Sarah</span>
                                                         </div>
                                                         <div className="tesla-email-response-content">
                                                             <div className="tesla-email-response-fields">
@@ -2344,7 +2458,7 @@ Rohit`
                                 /* Workspace Interface */
                                 <div className="tesla-workspace">
                                     <div className="tesla-workspace-header">
-                                        <h1 className="tesla-notion-title">🚗 Tesla GTM Strategy - Austin vs Waymo</h1>
+                                        <h1 className="tesla-notion-title">Tesla GTM Strategy Edit - Austin vs Waymo</h1>
                                     </div>
                                     
                                     <div className="tesla-notion-content">
@@ -2357,14 +2471,13 @@ Rohit`
                                                 <ul>
                                                     <li>Feedback on Tesla GTM deck structure and content</li>
                                                     <li>Need for more surgical competitive positioning against Waymo</li>
-                                                    <li>Slide 88 needs strategic POV rather than timeline approach</li>
                                                     <li>Focus on Tesla's advantages vs Waymo's constraints (geo-fencing, L4 redundancies)</li>
                                                     <li>Create executive summary for Mobility Ops team</li>
-                                                    <li>Get Sarah Chen's input on GTM levers that resonate</li>
+                                                    <li>Get Sarah's input on GTM levers that resonate</li>
                                                 </ul>
                                                 
                                                 <div className="tesla-notion-callout">
-                                                    🎯 <strong>Primary Actions:</strong> Update slide 88 with competitive strategic positioning, reach out to Sarah Chen, create exec summary for Mobility Ops
+                                                    🎯 <strong>Primary Actions:</strong> Update slide 88 with competitive strategic positioning, reach out to Sarah, create exec summary for Mobility Ops
                                                 </div>
                                             </div>
                                         </div>
@@ -2375,7 +2488,7 @@ Rohit`
                                             <div className="tesla-notion-file-link" onClick={() => window.open('#', '_blank')}>
                                                 <div className="tesla-notion-file-icon powerpoint">📊</div>
                                                 <div className="tesla-notion-file-info">
-                                                    <div className="tesla-notion-file-name">Tesla_GTM_Austin_Strategy.pptx</div>
+                                                    <div className="tesla-notion-file-name">2025_Tesla_GTM_Austin_v0.1.pptx</div>
                                                     <div className="tesla-notion-file-meta">Updated 2 minutes ago • 4.1 MB</div>
                                                 </div>
                                                 <div className="tesla-notion-file-action">Open →</div>
@@ -2383,17 +2496,18 @@ Rohit`
                                         </div>
 
                                         {/* Documents Section */}
+                                        {/* 
                                         <div className="tesla-notion-section">
                                             <h2 className="tesla-notion-heading">📄 Strategic Input</h2>
                                             <div className="tesla-notion-text">
-                                                <p><strong>Strategic Recommendations from Sarah Chen</strong></p>
+                                                <p><strong>Strategic Recommendations from Sarah</strong></p>
                                                 <div className="tesla-notion-callout" style={{background: '#f0f9ff', border: '1px solid #0ea5e9', borderRadius: '8px', padding: '12px', margin: '12px 0'}}>
                                                     ✅ <strong>Suggestions on which strategies to include added to context</strong><br/>
                                                     <em>Focus areas: Tesla's superior AI integration, cost advantages, and existing Austin infrastructure partnerships</em>
                                                 </div>
                                             </div>
                                         </div>
-
+                                                */} 
                                         {/* Timeline Section */}
                                         <div className="tesla-notion-section">
                                             <h2 className="tesla-notion-heading">⏰ Timeline & Deadlines</h2>
